@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { onAuthChange } from './firebase';
+import { onAuthChange, isSignInWithEmailLink, signInWithEmailLink, auth } from './firebase';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
@@ -18,13 +18,77 @@ import Register from './components/Register';
 import ClientDashboard from './components/ClientDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import Checkout from './components/Checkout';
+import AdminLoginPage from './components/AdminLoginPage';
+
+const ADMIN_EMAIL = "navneetyadav8070@gmail.com";
 
 const ScrollToTopOnNavigate = () => {
   const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
+};
+
+// 🔥 Admin Dashboard Wrapper - OTP verify check
+const AdminDashboardWrapper = ({ user }) => {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      // Check 1: Already authenticated via session
+      if (sessionStorage.getItem('adminAuthenticated') === 'true' && 
+          sessionStorage.getItem('adminEmail') === ADMIN_EMAIL) {
+        setIsAdmin(true);
+        setChecking(false);
+        return;
+      }
+
+      // Check 2: Coming from email magic link (OTP)
+      if (isSignInWithEmailLink(auth, window.location.href)) {
+        try {
+          let email = window.localStorage.getItem('emailForSignIn');
+          if (!email) {
+            email = ADMIN_EMAIL; // Force admin email
+          }
+          
+          const result = await signInWithEmailLink(auth, email, window.location.href);
+          
+          if (result.user.email === ADMIN_EMAIL) {
+            sessionStorage.setItem('adminAuthenticated', 'true');
+            sessionStorage.setItem('adminEmail', result.user.email);
+            sessionStorage.setItem('adminLoginTime', Date.now().toString());
+            window.localStorage.removeItem('emailForSignIn');
+            setIsAdmin(true);
+            setChecking(false);
+            return;
+          }
+        } catch (err) {
+          console.error('OTP verification failed:', err);
+        }
+      }
+
+      setChecking(false);
+    };
+
+    checkAdmin();
+  }, []);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-accent/30 border-t-accent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Verifying admin access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/admin-login" replace />;
+  }
+
+  return <AdminDashboard />;
 };
 
 const HomePage = ({ user }) => {
@@ -36,12 +100,10 @@ const HomePage = ({ user }) => {
             if (entry.isIntersecting) entry.target.classList.add('is-visible');
           });
         },
-        { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+        { threshold: 0.1 }
       );
       document.querySelectorAll('.fade-in-section').forEach(s => observer.observe(s));
-      return () => document.querySelectorAll('.fade-in-section').forEach(s => observer.unobserve(s));
     }, 500);
-    window.scrollTo(0, 0);
     return () => clearTimeout(timer);
   }, []);
 
@@ -82,12 +144,20 @@ function App() {
     <Router>
       <ScrollToTopOnNavigate />
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<HomePage user={user} />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <Register />} />
+        
+        {/* Client Routes */}
         <Route path="/dashboard" element={user ? <ClientDashboard user={user} /> : <Navigate to="/login" replace />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/admin" element={user?.email === 'Navneetyadav8070@gmail.com' ? <AdminDashboard user={user} /> : <Navigate to="/" replace />} />
+        <Route path="/checkout" element={user ? <Checkout /> : <Navigate to="/login?redirect=checkout" replace />} />
+        
+        {/* Admin Routes - OTP Based */}
+        <Route path="/admin-login" element={<AdminLoginPage />} />
+        <Route path="/ny-admin-8070" element={<AdminDashboardWrapper user={user} />} />
+        
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
