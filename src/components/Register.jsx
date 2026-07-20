@@ -15,9 +15,10 @@ const Register = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     try {
-      await registerWithEmail(email, password);
+      // FIXED: name ab actually save hota hai (displayName)
+      await registerWithEmail(name, email, password);
       navigate('/dashboard');
     } catch (err) {
       setError(err.message.replace('Firebase: ', ''));
@@ -29,7 +30,7 @@ const Register = () => {
   const handleGoogleSignUp = async () => {
     setError('');
     setLoading(true);
-    
+
     try {
       await loginWithGoogle();
       navigate('/dashboard');
@@ -56,7 +57,7 @@ const Register = () => {
         )}
 
         {/* Google Sign Up */}
-        <button 
+        <button
           onClick={handleGoogleSignUp}
           disabled={loading}
           className="w-full flex items-center justify-center gap-3 px-6 py-3.5 glass text-white font-medium rounded-xl border border-white/10 hover:border-accent/30 transition-all mb-4 disabled:opacity-50"

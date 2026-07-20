@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaBars, FaTimes, FaUser, FaSignOutAlt, FaFolderOpen } from 'react-icons/fa';
+import { FaBars, FaTimes, FaSignOutAlt, FaFolderOpen } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { logoutUser } from '../firebase';
 
 const LOGO_TEXT = "NY";
+// FIXED: "Pricing" ab 'services' section pe scroll karta hai (pricing usi section me hai).
+// Pehle id 'pricing' tha jiska koi section hi nahi tha, isliye link dead tha.
 const NAV_LINKS = [
   { id: 'home', label: 'Home', icon: '🏠' },
   { id: 'services', label: 'Services', icon: '💼' },
-  { id: 'pricing', label: 'Pricing', icon: '💰' },
+  { id: 'services', label: 'Pricing', icon: '💰' },
   { id: 'about', label: 'About', icon: '👤' },
   { id: 'skills', label: 'Skills', icon: '⚡' },
   { id: 'projects', label: 'Work', icon: '🚀' },
@@ -26,7 +28,7 @@ const Navbar = ({ user }) => {
 
   const scrollToSection = useCallback((sectionId) => {
     setIsOpen(false);
-    
+
     if (!isHomePage) {
       navigate('/');
       setTimeout(() => {
@@ -48,7 +50,7 @@ const Navbar = ({ user }) => {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-      
+
       if (isHomePage) {
         const sections = NAV_LINKS.map(link => document.getElementById(link.id));
         const scrollPosition = window.scrollY + 200;
@@ -60,7 +62,7 @@ const Navbar = ({ user }) => {
         }
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isHomePage]);
@@ -88,17 +90,17 @@ const Navbar = ({ user }) => {
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-1">
             {isHomePage && NAV_LINKS.map((link) => (
-              <button key={link.id} onClick={() => scrollToSection(link.id)}
+              <button key={link.label} onClick={() => scrollToSection(link.id)}
                 className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 bg-transparent border-none cursor-pointer outline-none ${activeSection === link.id ? 'text-accent bg-accent/5' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
                 <span className="mr-1.5">{link.icon}</span>{link.label}
                 {activeSection === link.id && <motion.div layoutId="activeTab" className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent rounded-full" transition={{ type: "spring", stiffness: 500, damping: 30 }} />}
               </button>
             ))}
-            
+
             {!isHomePage && (
               <Link to="/" className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-all">🏠 Home</Link>
             )}
-            
+
             <div className="ml-3 flex items-center gap-2">
               {user ? (
                 <>
@@ -131,17 +133,17 @@ const Navbar = ({ user }) => {
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="lg:hidden overflow-hidden">
               <div className="px-2 pt-2 pb-4 space-y-1.5 glass rounded-2xl mt-2 border border-white/5">
                 {isHomePage && NAV_LINKS.map((link) => (
-                  <button key={link.id} onClick={() => scrollToSection(link.id)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium w-full text-left bg-transparent border-none cursor-pointer ${activeSection === link.id ? 'text-accent bg-accent/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}>
+                  <button key={link.label} onClick={() => scrollToSection(link.id)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium w-full text-left bg-transparent border-none cursor-pointer ${activeSection === link.id ? 'text-accent bg-accent/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}>
                     <span className="text-xl">{link.icon}</span>{link.label}
                   </button>
                 ))}
-                
+
                 {!isHomePage && (
                   <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium w-full text-gray-300 hover:text-white hover:bg-white/5">
                     🏠 Home
                   </Link>
                 )}
-                
+
                 <div className="border-t border-white/5 pt-2 mt-2">
                   {user ? (
                     <>

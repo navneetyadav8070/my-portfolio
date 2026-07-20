@@ -1,16 +1,23 @@
-import { useCallback } from "react";
-import Particles from "@tsparticles/react";
+import { useEffect, useState } from "react";
+import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
 const ParticlesBackground = () => {
-  const particlesInit = useCallback(async (engine) => {
-    await loadSlim(engine);
+  const [ready, setReady] = useState(false);
+
+  // FIXED: v3/v4 API — engine ek baar init hota hai, phir Particles render hota hai.
+  // Purana `init={...}` prop v4 me kaam nahi karta tha, isliye particles dikhte hi nahi the.
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine);
+    }).then(() => setReady(true));
   }, []);
+
+  if (!ready) return null;
 
   return (
     <Particles
       id="tsparticles"
-      init={particlesInit}
       className="absolute inset-0"
       options={{
         fullScreen: false,
