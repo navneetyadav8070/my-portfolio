@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { onAuthChange, isSignInWithEmailLink, signInWithEmailLink, auth } from './firebase';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import Services from './components/Services';
+import Pricing from './components/Pricing';
 import About from './components/About';
 import Skills from './components/Skills';
 import Projects from './components/Projects';
@@ -28,7 +28,6 @@ const ScrollToTopOnNavigate = () => {
   return null;
 };
 
-// 🔥 Admin Dashboard Wrapper - OTP verify check
 const AdminDashboardWrapper = ({ user }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -47,9 +46,7 @@ const AdminDashboardWrapper = ({ user }) => {
       if (isSignInWithEmailLink(auth, window.location.href)) {
         try {
           let email = window.localStorage.getItem('emailForSignIn');
-          if (!email) {
-            email = ADMIN_EMAIL; // Force admin email
-          }
+          if (!email) email = ADMIN_EMAIL;
           
           const result = await signInWithEmailLink(auth, email, window.location.href);
           
@@ -61,6 +58,8 @@ const AdminDashboardWrapper = ({ user }) => {
             setIsAdmin(true);
             setChecking(false);
             return;
+          } else {
+            await auth.signOut();
           }
         } catch (err) {
           console.error('OTP verification failed:', err);
@@ -112,7 +111,7 @@ const HomePage = ({ user }) => {
       <Navbar user={user} />
       <main>
         <Hero />
-        <Services />
+        <Pricing />
         <About />
         <Skills />
         <Projects />
@@ -132,6 +131,26 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthChange((user) => {
+      // 🔥 ADMIN CHECK: If admin logged in via Firebase, don't set as normal user
+      if (user && user.email === ADMIN_EMAIL) {
+        // Check if admin is on admin routes
+        const isAdminRoute = window.location.pathname.includes('/ny-admin-8070') || 
+                            window.location.pathname.includes('/admin-login');
+        
+        if (isAdminRoute || sessionStorage.getItem('adminAuthenticated') === 'true') {
+          // Admin logged in - don't affect normal user state
+          setUser(null); // Keep user null so normal routes don't auto-redirect
+          setLoading(false);
+          return;
+        } else {
+          // Admin on public page - sign out
+          auth.signOut();
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+      }
+      
       setUser(user);
       setLoading(false);
     });
@@ -144,20 +163,13 @@ function App() {
     <Router>
       <ScrollToTopOnNavigate />
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<HomePage user={user} />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <Register />} />
-        
-        {/* Client Routes */}
         <Route path="/dashboard" element={user ? <ClientDashboard user={user} /> : <Navigate to="/login" replace />} />
         <Route path="/checkout" element={user ? <Checkout /> : <Navigate to="/login?redirect=checkout" replace />} />
-        
-        {/* Admin Routes - OTP Based */}
         <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="/ny-admin-8070" element={<AdminDashboardWrapper user={user} />} />
-        
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

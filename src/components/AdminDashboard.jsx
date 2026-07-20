@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import { FaArrowLeft, FaSearch, FaSignOutAlt } from 'react-icons/fa';
+import { FaSearch, FaSignOutAlt, FaLock } from 'react-icons/fa';
 
 const STATUS_OPTIONS = [
   { value: 'pending_payment', label: 'Payment Pending' },
@@ -30,28 +30,32 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const navigate = useNavigate();
 
-  // 🔥 Admin Session Check
+  // 🔥 Admin Session Check - Strict
   useEffect(() => {
-    const isAuthenticated = sessionStorage.getItem('adminAuthenticated') === 'true';
-    const adminEmail = sessionStorage.getItem('adminEmail');
-    const expiry = sessionStorage.getItem('adminExpiry');
-    const isValid = expiry && Date.now() < parseInt(expiry);
-    
-    if (!isAuthenticated || !isValid || adminEmail !== 'navneetyadav8070@gmail.com') {
-      handleLogout();
-      return;
-    }
-    
-    // Also check Firebase auth state
+    const checkAdminAccess = () => {
+      const isAuthenticated = sessionStorage.getItem('adminAuthenticated') === 'true';
+      const adminEmail = sessionStorage.getItem('adminEmail');
+      
+      if (!isAuthenticated || adminEmail !== 'navneetyadav8070@gmail.com') {
+        navigate('/admin-login', { replace: true });
+        return false;
+      }
+      return true;
+    };
+
+    if (!checkAdminAccess()) return;
+
+    // Firebase auth state check
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user || user.email !== 'navneetyadav8070@gmail.com') {
-        handleLogout();
+        sessionStorage.clear();
+        navigate('/admin-login', { replace: true });
       }
     });
-    
+
     fetchProjects();
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const fetchProjects = async () => {
     try {
@@ -103,14 +107,11 @@ const AdminDashboard = () => {
     fetchProjects();
   };
 
-  // 🔥 Secure Logout
+  // 🔥 Logout - ONLY to admin login page, NEVER to home
   const handleLogout = async () => {
     await auth.signOut();
-    sessionStorage.removeItem('adminAuthenticated');
-    sessionStorage.removeItem('adminEmail');
-    sessionStorage.removeItem('adminExpiry');
-    sessionStorage.removeItem('adminLoginTime');
-    navigate('/');
+    sessionStorage.clear();
+    navigate('/admin-login', { replace: true });
   };
 
   const formatCurrency = (amount) => {
@@ -141,25 +142,33 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-dark flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-accent/30 border-t-accent rounded-full animate-spin" />
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-accent/30 border-t-accent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Loading admin panel...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-dark">
-      {/* Header */}
+      {/* Header - No back to home link */}
       <div className="glass border-b border-white/5 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link to="/" className="text-gray-400 hover:text-accent"><FaArrowLeft size={20} /></Link>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center">
+                <FaLock className="text-yellow-400" />
+              </div>
               <div>
                 <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
                 <p className="text-sm text-gray-400">{sessionStorage.getItem('adminEmail')}</p>
               </div>
             </div>
-            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-red-400 glass rounded-xl transition-all">
+            <button 
+              onClick={handleLogout} 
+              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-red-400 glass rounded-xl transition-all border border-white/5"
+            >
               <FaSignOutAlt /> Logout
             </button>
           </div>
@@ -260,6 +269,11 @@ const AdminDashboard = () => {
               </div>
             </div>
           ))}
+          {filteredProjects.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-gray-400 text-lg">No projects found</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
