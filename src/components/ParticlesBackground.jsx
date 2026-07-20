@@ -1,16 +1,25 @@
 import { useEffect, useState } from "react";
-import Particles, { initParticlesEngine } from "@tsparticles/react";
+import Particles from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
+// Version-safe: koi `initParticlesEngine` import nahi (wo har version me nahi hota,
+// isliye build fail ho raha tha). Engine ko dynamic import se init karte hain.
 const ParticlesBackground = () => {
   const [ready, setReady] = useState(false);
 
-  // FIXED: v3/v4 API — engine ek baar init hota hai, phir Particles render hota hai.
-  // Purana `init={...}` prop v4 me kaam nahi karta tha, isliye particles dikhte hi nahi the.
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => setReady(true));
+    let mounted = true;
+    (async () => {
+      const mod = await import("@tsparticles/engine");
+      const engine = mod.tsParticles;
+      if (engine) {
+        await loadSlim(engine);
+        if (mounted) setReady(true);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (!ready) return null;
