@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';  // ✅ Add this import
+import { useNavigate } from 'react-router-dom';  // ✅ YEH IMPORT ADD KARO
 import { auth, db } from '../firebase/config';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
@@ -9,7 +9,7 @@ const AdminDashboard = () => {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();  // ✅ Now works
+  const navigate = useNavigate();  // ✅ AB YEH KAAM KAREGA
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -58,13 +58,10 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-dark pt-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
             <div className="glass rounded-2xl p-6 border border-accent/10 text-center">
               <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-3">
-                <span className="text-3xl">
-                  {user?.displayName?.charAt(0) || 'A'}
-                </span>
+                <span className="text-3xl">{user?.displayName?.charAt(0) || 'A'}</span>
               </div>
               <h3 className="text-white font-bold">{user?.displayName || 'Admin'}</h3>
               <p className="text-gray-400 text-sm">{user?.email}</p>
@@ -83,23 +80,18 @@ const AdminDashboard = () => {
               <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
                 <FaCog size={16} /> Settings
               </button>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all"
-              >
+              <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all">
                 <FaSignOutAlt size={16} /> Logout
               </button>
             </div>
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
             <div className="glass rounded-2xl p-6 border border-accent/10">
               <h2 className="text-2xl font-bold text-white mb-2">Admin Dashboard 👑</h2>
               <p className="text-gray-400">Welcome back, {user?.displayName || 'Admin'}!</p>
             </div>
 
-            {/* Admin Stats */}
             <div className="grid sm:grid-cols-3 gap-4">
               <div className="glass rounded-2xl p-5 border border-white/5">
                 <p className="text-gray-500 text-xs uppercase tracking-wider">Total Users</p>
