@@ -1,41 +1,42 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginWithEmail, loginWithGoogle, resetPassword } from '../../firebase/config';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../firebase/config';
-import { FaEnvelope, FaLock, FaGoogle, FaArrowRight } from 'react-icons/fa';
+import { registerWithEmail, loginWithGoogle } from '../../firebase/config';
+import { FaEnvelope, FaLock, FaGoogle, FaArrowRight, FaUser } from 'react-icons/fa';
 
-export default function LoginPage() {
+export default function RegisterPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
     try {
-      const result = await loginWithEmail(email, password);
+      const result = await registerWithEmail(email, password, name);
       if (result.success) {
-        // Check user role
-        const userDoc = await getDoc(doc(db, 'users', result.user.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          if (userData.role === 'super_admin' || userData.role === 'admin') {
-            navigate('/admin/dashboard');
-          } else {
-            navigate('/dashboard');
-          }
-        } else {
-          navigate('/dashboard');
-        }
+        setMessage('Registration successful! Please verify your email.');
+        setTimeout(() => navigate('/login'), 3000);
       }
     } catch (err) {
-      setError(err.message || 'Login failed');
+      setError(err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -45,38 +46,12 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const result = await loginWithGoogle();
-      // Check user role
-      const userDoc = await getDoc(doc(db, 'users', result.user.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        if (userData.role === 'super_admin' || userData.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/dashboard');
-        }
-      } else {
-        navigate('/dashboard');
-      }
+      await loginWithGoogle();
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Google login failed');
+      setError(err.message || 'Google registration failed');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleForgot = async () => {
-    if (!email) {
-      setError('Please enter your email first');
-      return;
-    }
-    setError('');
-    setMessage('');
-    try {
-      await resetPassword(email);
-      setMessage('Password reset email sent! Check your inbox.');
-    } catch (err) {
-      setError(err.message);
     }
   };
 
@@ -85,8 +60,8 @@ export default function LoginPage() {
       <div className="glass rounded-3xl p-8 max-w-md w-full border border-accent/10">
         <div className="text-center mb-8">
           <Link to="/" className="text-4xl font-black gradient-text inline-block">NY</Link>
-          <h1 className="text-2xl font-bold text-white mt-4">Welcome Back</h1>
-          <p className="text-gray-400 text-sm mt-1">Login to your account</p>
+          <h1 className="text-2xl font-bold text-white mt-4">Create Account</h1>
+          <p className="text-gray-400 text-sm mt-1">Join as a client</p>
         </div>
 
         {message && (
@@ -115,7 +90,19 @@ export default function LoginPage() {
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div className="relative">
+            <FaUser className="absolute left-4 top-3.5 text-gray-500" />
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full pl-12 pr-4 py-3.5 bg-dark text-white rounded-xl border border-white/10 focus:border-accent focus:outline-none transition-all"
+              placeholder="Full Name"
+            />
+          </div>
+
           <div className="relative">
             <FaEnvelope className="absolute left-4 top-3.5 text-gray-500" />
             <input
@@ -135,19 +122,22 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
               className="w-full pl-12 pr-4 py-3.5 bg-dark text-white rounded-xl border border-white/10 focus:border-accent focus:outline-none transition-all"
-              placeholder="Password"
+              placeholder="Password (min 6 chars)"
             />
           </div>
 
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={handleForgot}
-              className="text-xs text-accent hover:text-accent-hover transition-colors"
-            >
-              Forgot password?
-            </button>
+          <div className="relative">
+            <FaLock className="absolute left-4 top-3.5 text-gray-500" />
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="w-full pl-12 pr-4 py-3.5 bg-dark text-white rounded-xl border border-white/10 focus:border-accent focus:outline-none transition-all"
+              placeholder="Confirm Password"
+            />
           </div>
 
           <button
@@ -159,16 +149,16 @@ export default function LoginPage() {
               <div className="w-5 h-5 border-2 border-dark/30 border-t-dark rounded-full animate-spin" />
             ) : (
               <>
-                Sign In <FaArrowRight size={14} />
+                Create Account <FaArrowRight size={14} />
               </>
             )}
           </button>
         </form>
 
         <p className="text-center text-gray-500 text-sm mt-6">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-accent hover:text-accent-hover transition-colors font-medium">
-            Register
+          Already have an account?{' '}
+          <Link to="/login" className="text-accent hover:text-accent-hover transition-colors font-medium">
+            Login
           </Link>
         </p>
       </div>

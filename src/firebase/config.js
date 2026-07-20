@@ -10,7 +10,8 @@ import {
   sendSignInLinkToEmail,
   signInWithEmailLink,
   isSignInWithEmailLink,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  updateProfile
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -23,7 +24,8 @@ import {
   updateDoc, 
   serverTimestamp, 
   getDoc,
-  orderBy
+  orderBy,
+  setDoc
 } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -43,9 +45,71 @@ export const db = getFirestore(app);
 // Auth functions
 export const googleProvider = new GoogleAuthProvider();
 
-export const loginWithGoogle = async () => await signInWithPopup(auth, googleProvider);
-export const loginWithEmail = async (email, password) => await signInWithEmailAndPassword(auth, email, password);
-export const registerWithEmail = async (email, password) => await createUserWithEmailAndPassword(auth, email, password);
+export const loginWithGoogle = async () => {
+  const result = await signInWithPopup(auth, googleProvider);
+  const user = result.user;
+  
+  // Check if user exists in Firestore
+  const userRef = doc(db, 'users', user.uid);
+  const userDoc = await getDoc(userRef);
+  
+  if (!userDoc.exists()) {
+    // Create user document for new Google user
+    await setDoc(userRef, {
+      email: user.email,
+      displayName: user.displayName || 'User',
+      photoURL: user.photoURL,
+      role: 'user',
+      status: 'active',
+      emailVerified: true,
+      createdAt: serverTimestamp(),
+      lastLogin: serverTimestamp()
+    });
+  } else {
+    // Update last login
+    await updateDoc(userRef, {
+      lastLogin: serverTimestamp()
+    });
+  }
+  
+  return { success: true, user };
+};
+
+export const loginWithEmail = async (email, password) => {
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  const user = userCredential.user;
+  
+  // Update last login
+  const userRef = doc(db, 'users', user.uid);
+  await updateDoc(userRef, {
+    lastLogin: serverTimestamp()
+  });
+  
+  return { success: true, user };
+};
+
+export const registerWithEmail = async (email, password, displayName) => {
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const user = userCredential.user;
+  
+  // Update profile
+  await updateProfile(user, { displayName });
+  
+  // Create user document in Firestore
+  await setDoc(doc(db, 'users', user.uid), {
+    email: email,
+    displayName: displayName || 'User',
+    photoURL: null,
+    role: 'user',
+    status: 'active',
+    emailVerified: false,
+    createdAt: serverTimestamp(),
+    lastLogin: serverTimestamp()
+  });
+  
+  return { success: true, user };
+};
+
 export const logoutUser = async () => await signOut(auth);
 export const resetPassword = async (email) => await sendPasswordResetEmail(auth, email);
 export const onAuthChange = (callback) => onAuthStateChanged(auth, callback);
@@ -72,6 +136,3 @@ export const getAllProjects = async () => {
 export const updateProjectStatus = async (projectId, data) => {
   await updateDoc(doc(db, 'projects', projectId), { ...data, updatedAt: serverTimestamp() });
 };
-
-// Re-exports
-export { isSignInWithEmailLink, signInWithEmailLink, sendSignInLinkToEmail };
