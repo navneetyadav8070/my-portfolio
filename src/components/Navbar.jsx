@@ -5,7 +5,7 @@ import {
   FiFolder, FiLogOut, FiLogIn, FiMenu, FiX
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
-import { logoutUser } from '../firebase';
+import { logoutUser } from '../firebase/config';  // ✅ FIXED: changed from '../firebase' to '../firebase/config'
 
 const LOGO_TEXT = "NY";
 

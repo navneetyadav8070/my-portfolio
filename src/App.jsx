@@ -13,13 +13,10 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import LoadingScreen from './components/LoadingScreen';
+import LoginPage from './pages/auth/LoginPage';
 import Checkout from './components/Checkout';
 
 const ADMIN_EMAIL = "navneetyadav8070@gmail.com";
-
-// Import existing components only
-import Login from './pages/auth/LoginPage';
-import AdminLoginPage from './pages/auth/AdminLoginPage';
 
 const ScrollToTopOnNavigate = () => {
   const { pathname } = useLocation();
@@ -31,11 +28,7 @@ const HomePage = ({ user }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) entry.target.classList.add('is-visible');
-          });
-        },
+        (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('is-visible'); }),
         { threshold: 0.1 }
       );
       document.querySelectorAll('.fade-in-section').forEach(s => observer.observe(s));
@@ -68,15 +61,6 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthChange((user) => {
-      if (user && user.email === ADMIN_EMAIL) {
-        const isAdminRoute = window.location.pathname.includes('/admin') || 
-                            window.location.pathname.includes('/super-admin');
-        if (isAdminRoute || sessionStorage.getItem('adminAuthenticated') === 'true') {
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-      }
       setUser(user);
       setLoading(false);
     });
@@ -90,8 +74,7 @@ function App() {
       <ScrollToTopOnNavigate />
       <Routes>
         <Route path="/" element={<HomePage user={user} />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin-login" element={<AdminLoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/checkout" element={user ? <Checkout /> : <Navigate to="/login" />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

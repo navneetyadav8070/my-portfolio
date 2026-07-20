@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { auth, db } from '../firebase';
+import { auth, db } from '../firebase/config';  // ✅ FIXED: changed from '../firebase' to '../firebase/config'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { FaLock, FaCreditCard, FaCheckCircle, FaArrowLeft, FaShieldAlt, FaEnvelope, FaPhone } from 'react-icons/fa';
 

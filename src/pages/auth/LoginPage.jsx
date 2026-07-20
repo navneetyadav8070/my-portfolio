@@ -1,80 +1,72 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase/config';
-import { FaLock, FaArrowRight, FaShieldAlt, FaEnvelope } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { loginWithEmail, loginWithGoogle, resetPassword } from '../../firebase/config';
+import { FaEnvelope, FaLock, FaGoogle, FaArrowRight } from 'react-icons/fa';
 
-const ADMIN_EMAIL = "navneetyadav8070@gmail.com";
-const ADMIN_SECRET_PIN = "8070";
-
-export default function AdminLoginPage() {
-  const [step, setStep] = useState(1);
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [secretPin, setSecretPin] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleStep1 = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+    setError(''); setMessage(''); setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, ADMIN_EMAIL, password);
-      setStep(2);
+      await loginWithEmail(email, password);
+      navigate('/dashboard');
     } catch (err) {
-      setError('Invalid password.');
-    } finally {
-      setLoading(false);
-    }
+      setError(err.message || 'Login failed');
+    } finally { setLoading(false); }
   };
 
-  const handleStep2 = (e) => {
-    e.preventDefault();
-    if (secretPin !== ADMIN_SECRET_PIN) {
-      setError('Invalid security PIN.');
-      return;
+  const handleGoogle = async () => {
+    setError(''); setLoading(true);
+    try {
+      await loginWithGoogle();
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'Google login failed');
+    } finally { setLoading(false); }
+  };
+
+  const handleForgot = async () => {
+    if (!email) { setError('Enter email first'); return; }
+    try {
+      await resetPassword(email);
+      setMessage('Password reset email sent!');
+      setError('');
+    } catch (err) {
+      setError(err.message);
     }
-    sessionStorage.setItem('adminAuthenticated', 'true');
-    sessionStorage.setItem('adminEmail', ADMIN_EMAIL);
-    navigate('/admin', { replace: true });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center gradient-bg p-4">
       <div className="glass rounded-3xl p-8 max-w-md w-full">
         <div className="text-center mb-8">
-          <FaShieldAlt className="text-yellow-400 text-3xl mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white">Admin Login</h2>
+          <Link to="/" className="text-4xl font-black gradient-text">NY</Link>
+          <h1 className="text-2xl font-bold text-white mt-4">Welcome Back</h1>
         </div>
+        {message && <div className="bg-green-500/10 text-green-400 px-4 py-3 rounded-xl text-sm mb-4">{message}</div>}
         {error && <div className="bg-red-500/10 text-red-400 px-4 py-3 rounded-xl text-sm mb-4">{error}</div>}
         
-        {step === 1 ? (
-          <form onSubmit={handleStep1} className="space-y-4">
-            <div className="relative">
-              <FaEnvelope className="absolute left-4 top-3.5 text-gray-500" />
-              <input type="email" value={ADMIN_EMAIL} readOnly className="w-full pl-12 pr-4 py-3.5 bg-dark/50 text-gray-400 rounded-xl border border-white/10" />
-            </div>
-            <div className="relative">
-              <FaLock className="absolute left-4 top-3.5 text-gray-500" />
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoFocus
-                className="w-full pl-12 pr-4 py-3.5 bg-dark text-white rounded-xl border border-white/10 focus:border-yellow-400 focus:outline-none" placeholder="Password" />
-            </div>
-            <button type="submit" disabled={loading} className="w-full py-4 bg-yellow-500 text-dark font-bold rounded-xl">
-              {loading ? 'Verifying...' : <>Next <FaArrowRight /></>}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleStep2} className="space-y-4">
-            <p className="text-green-400 text-sm text-center">✅ Email verified</p>
-            <div className="relative">
-              <FaLock className="absolute left-4 top-3.5 text-gray-500" />
-              <input type="password" value={secretPin} onChange={(e) => setSecretPin(e.target.value)} required autoFocus maxLength={10}
-                className="w-full pl-12 pr-4 py-3.5 bg-dark text-white rounded-xl border border-white/10 focus:border-yellow-400 focus:outline-none" placeholder="Security PIN" />
-            </div>
-            <button type="submit" className="w-full py-4 bg-accent text-dark font-bold rounded-xl">Access Admin</button>
-          </form>
-        )}
+        <button onClick={handleGoogle} disabled={loading} className="w-full flex items-center justify-center gap-3 py-3.5 glass text-white rounded-xl mb-4">
+          <FaGoogle className="text-red-400" /> Continue with Google
+        </button>
+        
+        <div className="flex items-center gap-4 mb-4"><div className="flex-1 h-px bg-white/10" /><span className="text-gray-500 text-xs">or</span><div className="flex-1 h-px bg-white/10" /></div>
+        
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div className="relative"><FaEnvelope className="absolute left-4 top-3.5 text-gray-500" /><input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full pl-12 pr-4 py-3.5 bg-dark text-white rounded-xl border border-white/10" placeholder="Email" /></div>
+          <div className="relative"><FaLock className="absolute left-4 top-3.5 text-gray-500" /><input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full pl-12 pr-4 py-3.5 bg-dark text-white rounded-xl border border-white/10" placeholder="Password" /></div>
+          <button type="button" onClick={handleForgot} className="text-xs text-accent">Forgot password?</button>
+          <button type="submit" disabled={loading} className="w-full py-4 bg-accent text-dark font-bold rounded-xl">{loading ? 'Signing in...' : <>Sign In <FaArrowRight /></>}</button>
+        </form>
+        
+        <p className="text-center text-gray-500 text-sm mt-6">Don't have an account? <Link to="/register" className="text-accent">Register</Link></p>
       </div>
     </div>
   );
