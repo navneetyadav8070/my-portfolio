@@ -1,24 +1,26 @@
 import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
   onAuthStateChanged,
+  updateProfile,
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  getDocs, 
-  query, 
-  where, 
-  doc, 
-  updateDoc, 
-  serverTimestamp, 
-  onSnapshot, 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp,
+  onSnapshot,
   getDoc
 } from 'firebase/firestore';
 
@@ -46,8 +48,13 @@ export const loginWithEmail = async (email, password) => {
   return await signInWithEmailAndPassword(auth, email, password);
 };
 
-export const registerWithEmail = async (email, password) => {
-  return await createUserWithEmailAndPassword(auth, email, password);
+// FIXED: ab name bhi save hota hai (displayName set hota hai)
+export const registerWithEmail = async (name, email, password) => {
+  const credential = await createUserWithEmailAndPassword(auth, email, password);
+  if (name && name.trim()) {
+    await updateProfile(credential.user, { displayName: name.trim() });
+  }
+  return credential;
 };
 
 export const logoutUser = async () => {
@@ -58,22 +65,21 @@ export const onAuthChange = (callback) => {
   return onAuthStateChanged(auth, callback);
 };
 
-// 🔥 FIXED: Removed orderBy to avoid index error
+// orderBy hataya gaya hai index error se bachne ke liye (manually sort kar rahe hain)
 export const getClientProjects = async (clientEmail) => {
   const q = query(
     collection(db, 'projects'),
     where('clientEmail', '==', clientEmail)
   );
   const snapshot = await getDocs(q);
-  
-  // Sort manually
+
   const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   projects.sort((a, b) => {
     const timeA = a.createdAt?.toDate?.() || new Date(0);
     const timeB = b.createdAt?.toDate?.() || new Date(0);
     return timeB - timeA;
   });
-  
+
   return { docs: projects.map(p => ({ id: p.id, data: () => p })) };
 };
 
@@ -99,4 +105,9 @@ export const createProject = async (projectData) => {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
+};
+
+// NEW: project delete karne ke liye
+export const deleteProject = async (projectId) => {
+  return await deleteDoc(doc(db, 'projects', projectId));
 };

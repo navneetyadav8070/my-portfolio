@@ -1,16 +1,32 @@
-import { useCallback } from "react";
+import { useEffect, useState } from "react";
 import Particles from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
+// Version-safe: koi `initParticlesEngine` import nahi (wo har version me nahi hota,
+// isliye build fail ho raha tha). Engine ko dynamic import se init karte hain.
 const ParticlesBackground = () => {
-  const particlesInit = useCallback(async (engine) => {
-    await loadSlim(engine);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const mod = await import("@tsparticles/engine");
+      const engine = mod.tsParticles;
+      if (engine) {
+        await loadSlim(engine);
+        if (mounted) setReady(true);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
   }, []);
+
+  if (!ready) return null;
 
   return (
     <Particles
       id="tsparticles"
-      init={particlesInit}
       className="absolute inset-0"
       options={{
         fullScreen: false,

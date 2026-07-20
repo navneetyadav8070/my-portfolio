@@ -1,18 +1,9 @@
-import { useState, useEffect } from 'react';
+// FIXED: internal 2s timer hata diya.
+// Pehle ye component khud ko 2s baad null kar deta tha, aur agar Firebase auth
+// 2s se zyada leta to poora blank dark screen dikh jaata tha.
+// Ab ye sirf UI dikhata hai — kab dikhana hai ye App.jsx (auth loading) decide karta hai.
 
 const LoadingScreen = () => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!loading) return null;
-
   return (
     <div className="fixed inset-0 z-[100] bg-dark flex items-center justify-center transition-opacity duration-500">
       <div className="text-center">
