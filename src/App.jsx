@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { onAuthChange, isSignInWithEmailLink, signInWithEmailLink, auth } from './firebase';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import Pricing from './components/Pricing';
+import Services from './components/Services';
 import About from './components/About';
 import Skills from './components/Skills';
 import Projects from './components/Projects';
@@ -34,7 +34,6 @@ const AdminDashboardWrapper = ({ user }) => {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      // Check 1: Already authenticated via session
       if (sessionStorage.getItem('adminAuthenticated') === 'true' && 
           sessionStorage.getItem('adminEmail') === ADMIN_EMAIL) {
         setIsAdmin(true);
@@ -42,7 +41,6 @@ const AdminDashboardWrapper = ({ user }) => {
         return;
       }
 
-      // Check 2: Coming from email magic link (OTP)
       if (isSignInWithEmailLink(auth, window.location.href)) {
         try {
           let email = window.localStorage.getItem('emailForSignIn');
@@ -111,7 +109,7 @@ const HomePage = ({ user }) => {
       <Navbar user={user} />
       <main>
         <Hero />
-        <Pricing />
+        <Services />
         <About />
         <Skills />
         <Projects />
@@ -131,19 +129,15 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthChange((user) => {
-      // 🔥 ADMIN CHECK: If admin logged in via Firebase, don't set as normal user
       if (user && user.email === ADMIN_EMAIL) {
-        // Check if admin is on admin routes
         const isAdminRoute = window.location.pathname.includes('/ny-admin-8070') || 
                             window.location.pathname.includes('/admin-login');
         
         if (isAdminRoute || sessionStorage.getItem('adminAuthenticated') === 'true') {
-          // Admin logged in - don't affect normal user state
-          setUser(null); // Keep user null so normal routes don't auto-redirect
+          setUser(null);
           setLoading(false);
           return;
         } else {
-          // Admin on public page - sign out
           auth.signOut();
           setUser(null);
           setLoading(false);
