@@ -1,20 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaBars, FaTimes, FaSignOutAlt, FaFolderOpen } from 'react-icons/fa';
+import {
+  FiHome, FiTag, FiUser, FiZap, FiBriefcase, FiMail,
+  FiFolder, FiLogOut, FiLogIn, FiMenu, FiX
+} from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { logoutUser } from '../firebase';
 
 const LOGO_TEXT = "NY";
-// FIXED: "Pricing" ab 'services' section pe scroll karta hai (pricing usi section me hai).
-// Pehle id 'pricing' tha jiska koi section hi nahi tha, isliye link dead tha.
+
+// "Services" hata diya, sirf "Pricing" rakha (wo Services section me hi hai, id 'services').
+// Emoji ki jagah clean Feather icons (component reference).
 const NAV_LINKS = [
-  { id: 'home', label: 'Home', icon: '🏠' },
-  { id: 'services', label: 'Services', icon: '💼' },
-  { id: 'services', label: 'Pricing', icon: '💰' },
-  { id: 'about', label: 'About', icon: '👤' },
-  { id: 'skills', label: 'Skills', icon: '⚡' },
-  { id: 'projects', label: 'Work', icon: '🚀' },
-  { id: 'contact', label: 'Contact', icon: '📬' },
+  { id: 'home', label: 'Home', Icon: FiHome },
+  { id: 'services', label: 'Pricing', Icon: FiTag },
+  { id: 'about', label: 'About', Icon: FiUser },
+  { id: 'skills', label: 'Skills', Icon: FiZap },
+  { id: 'projects', label: 'Work', Icon: FiBriefcase },
+  { id: 'contact', label: 'Contact', Icon: FiMail },
 ];
 
 const Navbar = ({ user }) => {
@@ -91,24 +94,27 @@ const Navbar = ({ user }) => {
           <div className="hidden lg:flex items-center space-x-1">
             {isHomePage && NAV_LINKS.map((link) => (
               <button key={link.label} onClick={() => scrollToSection(link.id)}
-                className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 bg-transparent border-none cursor-pointer outline-none ${activeSection === link.id ? 'text-accent bg-accent/5' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
-                <span className="mr-1.5">{link.icon}</span>{link.label}
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 bg-transparent border-none cursor-pointer outline-none ${activeSection === link.id ? 'text-accent bg-accent/5' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+                <link.Icon size={16} className="shrink-0" />
+                <span>{link.label}</span>
                 {activeSection === link.id && <motion.div layoutId="activeTab" className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent rounded-full" transition={{ type: "spring", stiffness: 500, damping: 30 }} />}
               </button>
             ))}
 
             {!isHomePage && (
-              <Link to="/" className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-all">🏠 Home</Link>
+              <Link to="/" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white transition-all">
+                <FiHome size={16} /> Home
+              </Link>
             )}
 
             <div className="ml-3 flex items-center gap-2">
               {user ? (
                 <>
                   <Link to="/dashboard" className="flex items-center gap-2 px-4 py-2 glass border border-accent/20 text-accent text-sm font-medium rounded-xl hover:bg-accent/10 transition-all">
-                    <FaFolderOpen size={14} /> My Projects
+                    <FiFolder size={15} /> My Projects
                   </Link>
-                  <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-red-400 transition-all bg-transparent border-none cursor-pointer">
-                    <FaSignOutAlt size={14} />
+                  <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-red-400 transition-all bg-transparent border-none cursor-pointer" title="Logout">
+                    <FiLogOut size={16} />
                   </button>
                 </>
               ) : (
@@ -122,7 +128,7 @@ const Navbar = ({ user }) => {
           {/* Mobile Menu Button */}
           <div className="lg:hidden">
             <button onClick={() => setIsOpen(!isOpen)} className="w-10 h-10 flex items-center justify-center rounded-xl glass border border-white/10 text-gray-300 hover:text-accent transition-all bg-transparent cursor-pointer">
-              {isOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
+              {isOpen ? <FiX size={20} /> : <FiMenu size={20} />}
             </button>
           </div>
         </div>
@@ -134,13 +140,14 @@ const Navbar = ({ user }) => {
               <div className="px-2 pt-2 pb-4 space-y-1.5 glass rounded-2xl mt-2 border border-white/5">
                 {isHomePage && NAV_LINKS.map((link) => (
                   <button key={link.label} onClick={() => scrollToSection(link.id)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium w-full text-left bg-transparent border-none cursor-pointer ${activeSection === link.id ? 'text-accent bg-accent/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}>
-                    <span className="text-xl">{link.icon}</span>{link.label}
+                    <link.Icon size={20} className="shrink-0" />
+                    <span>{link.label}</span>
                   </button>
                 ))}
 
                 {!isHomePage && (
                   <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium w-full text-gray-300 hover:text-white hover:bg-white/5">
-                    🏠 Home
+                    <FiHome size={20} /> Home
                   </Link>
                 )}
 
@@ -148,15 +155,15 @@ const Navbar = ({ user }) => {
                   {user ? (
                     <>
                       <Link to="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium w-full text-accent bg-accent/10">
-                        <FaFolderOpen /> My Projects
+                        <FiFolder size={20} /> My Projects
                       </Link>
                       <button onClick={() => { handleLogout(); setIsOpen(false); }} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium w-full text-left text-red-400 hover:bg-white/5">
-                        <FaSignOutAlt /> Logout
+                        <FiLogOut size={20} /> Logout
                       </button>
                     </>
                   ) : (
                     <Link to="/login" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium w-full text-accent bg-accent/10">
-                      🔐 Login / Register
+                      <FiLogIn size={20} /> Login / Register
                     </Link>
                   )}
                 </div>
