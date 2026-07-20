@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Typewriter from 'typewriter-effect';
-import ParticlesBackground from './ParticlesBackground';
+
 import { FaGithub, FaLinkedin, FaArrowRight, FaCode, FaEnvelope, FaCheckCircle } from 'react-icons/fa';
 
 const SOCIAL_LINKS = {
