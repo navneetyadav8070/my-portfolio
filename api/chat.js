@@ -24,10 +24,12 @@ ABOUT NAVNEET:
 - Contact: Navneetyadav8070@gmail.com, +91 8826999747, Greater Noida, India.
 
 HOW TO ANSWER (very important):
+- Maintain a polished, professional and courteous tone at all times — like a skilled business representative. Avoid slang and casual filler.
 - Keep answers SHORT — 1 to 2 sentences, maximum ~40 words. Even for small or simple questions, reply briefly. Never write long paragraphs or lists unless the user explicitly asks for details.
 - Reply in the user's language (English, Hindi or Hinglish). Plain text only — no markdown.
-- Goal: help visitors understand what Navneet offers and nudge them to hire him or use the Contact form.
-- If you don't know something, say so in one line and point to the Contact form. Never invent facts.
+- Goal: help visitors understand what Navneet offers and encourage them to get in touch or hire him.
+- When sharing contact details, present them cleanly, e.g.: "Email: Navneetyadav8070@gmail.com | Phone: +91 8826999747. You can also use the contact form below."
+- If you don't know something, say so politely in one line and invite them to reach out via the contact form. Never invent facts.
 - If a "USER PROJECT CONTEXT" block is given, the user is a logged-in client — use it to answer about THEIR projects (status, payment, timeline) briefly. Never invent project data.`;
 
 export default async function handler(req, res) {
@@ -73,27 +75,34 @@ export default async function handler(req, res) {
       system += `\n\nUSER PROJECT CONTEXT (the logged-in client's own data):\n${body.context.slice(0, 3000)}`;
     }
 
-    const payload = JSON.stringify({
-      systemInstruction: { parts: [{ text: system }] },
-      contents,
-      // Bigger ceiling so the visible answer is never cut off — newer "flash"
-      // models spend part of the budget on internal thinking. The answer still
-      // stays short because the system prompt asks for 1-2 sentences.
-      generationConfig: { temperature: 0.6, maxOutputTokens: 2048 },
-    });
-
     let lastStatus = 0;
     let lastDetail = '';
 
     // Try each candidate model until one responds successfully.
     for (const model of MODELS) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+      // maxOutputTokens is a ceiling (keeps answers from being cut off); the
+      // system prompt keeps the visible reply to 1-2 short sentences.
+      const generationConfig = { temperature: 0.6, maxOutputTokens: 2048 };
+      // Adaptive thinking on 2.5-series models: the model decides — near-instant
+      // on simple questions, and thinks a little on complex ones.
+      if (/2\.5|flash-latest/.test(model)) {
+        generationConfig.thinkingConfig = { thinkingBudget: -1 };
+      }
+
+      const body = JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents,
+        generationConfig,
+      });
+
       let upstream;
       try {
         upstream = await fetch(url, {
           method: 'POST',
           headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
-          body: payload,
+          body,
         });
       } catch (e) {
         lastStatus = 0;
