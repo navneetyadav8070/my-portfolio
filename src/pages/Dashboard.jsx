@@ -1,21 +1,29 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';  // ✅ Add useNavigate
-import { auth } from '../firebase/config';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth, getClientProjects } from '../firebase/config';
 import { signOut } from 'firebase/auth';
 import { FaUser, FaFolder, FaCog, FaSignOutAlt, FaEnvelope } from 'react-icons/fa';
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();  // ✅ Add this
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (!user) {
         navigate('/login');
         return;
       }
       setUser(user);
+      // Client ke apne projects laao
+      try {
+        const result = await getClientProjects(user.email);
+        setProjects(result.docs.map(d => ({ id: d.id, ...d.data() })));
+      } catch (err) {
+        console.error('Projects load nahi hue:', err);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -99,17 +107,44 @@ const Dashboard = () => {
 
             {/* Projects Section */}
             <div className="glass rounded-2xl p-6 border border-white/5">
-              <h3 className="text-lg font-bold text-white mb-4">Your Projects</h3>
-              <div className="text-center py-8">
-                <div className="text-4xl mb-3">🚀</div>
-                <p className="text-gray-400">No projects yet</p>
-                <Link
-                  to="/#services"
-                  className="inline-block mt-3 px-6 py-2.5 bg-accent text-dark font-semibold rounded-xl hover:bg-accent-hover transition-all"
-                >
-                  Start a Project
-                </Link>
-              </div>
+              <h3 className="text-lg font-bold text-white mb-4">
+                Your Projects {projects.length > 0 && <span className="text-accent">({projects.length})</span>}
+              </h3>
+
+              {projects.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-3">🚀</div>
+                  <p className="text-gray-400">No projects yet</p>
+                  <Link
+                    to="/#services"
+                    className="inline-block mt-3 px-6 py-2.5 bg-accent text-dark font-semibold rounded-xl hover:bg-accent-hover transition-all"
+                  >
+                    Start a Project
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {projects.map((project) => (
+                    <div key={project.id} className="glass rounded-xl p-4 border border-white/5 flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-white font-medium">{project.title || project.service || 'Untitled Project'}</p>
+                        {project.description && (
+                          <p className="text-gray-500 text-sm mt-0.5 line-clamp-1">{project.description}</p>
+                        )}
+                      </div>
+                      <span className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${
+                        project.status === 'completed'
+                          ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                          : project.status === 'in-progress'
+                          ? 'bg-accent/10 text-accent border border-accent/20'
+                          : 'bg-white/5 text-gray-400 border border-white/10'
+                      }`}>
+                        {project.status || 'pending'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

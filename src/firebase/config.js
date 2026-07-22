@@ -11,6 +11,7 @@ import {
   signInWithEmailLink,
   isSignInWithEmailLink,
   sendPasswordResetEmail,
+  sendEmailVerification,
   updateProfile
 } from 'firebase/auth';
 import { 
@@ -22,9 +23,8 @@ import {
   where, 
   doc, 
   updateDoc, 
-  serverTimestamp, 
+  serverTimestamp,
   getDoc,
-  orderBy,
   setDoc
 } from 'firebase/firestore';
 
@@ -78,13 +78,14 @@ export const loginWithGoogle = async () => {
 export const loginWithEmail = async (email, password) => {
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
-  
-  // Update last login
+
+  // Update last login (merge:true taaki doc na hone par bhi na crash ho, khud ban jaaye)
   const userRef = doc(db, 'users', user.uid);
-  await updateDoc(userRef, {
+  await setDoc(userRef, {
+    email: user.email,
     lastLogin: serverTimestamp()
-  });
-  
+  }, { merge: true });
+
   return { success: true, user };
 };
 
@@ -94,7 +95,10 @@ export const registerWithEmail = async (email, password, displayName) => {
   
   // Update profile
   await updateProfile(user, { displayName });
-  
+
+  // Verification email bhejo (register message se match kare)
+  await sendEmailVerification(user);
+
   // Create user document in Firestore
   await setDoc(doc(db, 'users', user.uid), {
     email: email,
@@ -106,7 +110,7 @@ export const registerWithEmail = async (email, password, displayName) => {
     createdAt: serverTimestamp(),
     lastLogin: serverTimestamp()
   });
-  
+
   return { success: true, user };
 };
 
@@ -128,8 +132,18 @@ export const getClientProjects = async (clientEmail) => {
 };
 
 export const getAllProjects = async () => {
-  const q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'));
-  const snapshot = await getDocs(q);
+  const snapshot = await getDocs(collection(db, 'projects'));
+  const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  projects.sort((a, b) => {
+    const timeA = a.createdAt?.toDate?.() || new Date(0);
+    const timeB = b.createdAt?.toDate?.() || new Date(0);
+    return timeB - timeA;
+  });
+  return projects;
+};
+
+export const getAllUsers = async () => {
+  const snapshot = await getDocs(collection(db, 'users'));
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 

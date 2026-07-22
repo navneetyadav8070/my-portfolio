@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';  // ✅ YEH IMPORT ADD KARO
-import { auth, db } from '../firebase/config';
+import { useNavigate } from 'react-router-dom';
+import { auth, db, getAllUsers, getAllProjects } from '../firebase/config';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { FaUsers, FaFolder, FaCog, FaSignOutAlt, FaUserShield } from 'react-icons/fa';
@@ -8,8 +8,9 @@ import { FaUsers, FaFolder, FaCog, FaSignOutAlt, FaUserShield } from 'react-icon
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [stats, setStats] = useState({ users: 0, projects: 0, revenue: 0 });
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();  // ✅ AB YEH KAAM KAREGA
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -19,7 +20,7 @@ const AdminDashboard = () => {
       }
 
       const userDoc = await getDoc(doc(db, 'users', user.uid));
-      
+
       if (userDoc.exists()) {
         const userData = userDoc.data();
         if (userData.role !== 'super_admin' && userData.role !== 'admin') {
@@ -28,10 +29,19 @@ const AdminDashboard = () => {
         }
         setUser(user);
         setUserRole(userData.role);
+
+        // Real stats laao
+        try {
+          const [users, projects] = await Promise.all([getAllUsers(), getAllProjects()]);
+          const revenue = projects.reduce((sum, p) => sum + (Number(p.amount || p.price) || 0), 0);
+          setStats({ users: users.length, projects: projects.length, revenue });
+        } catch (err) {
+          console.error('Stats load nahi hue:', err);
+        }
       } else {
         navigate('/login');
       }
-      
+
       setLoading(false);
     });
     return () => unsubscribe();
@@ -95,15 +105,15 @@ const AdminDashboard = () => {
             <div className="grid sm:grid-cols-3 gap-4">
               <div className="glass rounded-2xl p-5 border border-white/5">
                 <p className="text-gray-500 text-xs uppercase tracking-wider">Total Users</p>
-                <p className="text-3xl font-bold text-white mt-1">0</p>
+                <p className="text-3xl font-bold text-white mt-1">{stats.users}</p>
               </div>
               <div className="glass rounded-2xl p-5 border border-white/5">
                 <p className="text-gray-500 text-xs uppercase tracking-wider">Total Projects</p>
-                <p className="text-3xl font-bold text-white mt-1">0</p>
+                <p className="text-3xl font-bold text-white mt-1">{stats.projects}</p>
               </div>
               <div className="glass rounded-2xl p-5 border border-white/5">
                 <p className="text-gray-500 text-xs uppercase tracking-wider">Revenue</p>
-                <p className="text-3xl font-bold text-accent mt-1">₹0</p>
+                <p className="text-3xl font-bold text-accent mt-1">₹{stats.revenue.toLocaleString('en-IN')}</p>
               </div>
             </div>
           </div>
