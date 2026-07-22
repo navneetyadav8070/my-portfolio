@@ -6,6 +6,19 @@ import { doc, getDoc } from 'firebase/firestore';
 import { FaFolder, FaSignOutAlt, FaUserShield, FaArrowRight } from 'react-icons/fa';
 import PasswordManager from '../components/PasswordManager';
 
+const money = (amount) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
+    .format(Number(amount) || 0).replace('INR', '₹');
+
+// Chhota format (mobile par bade amount fit karne ke liye): ₹1L, ₹1.5L, ₹1Cr
+const moneyShort = (amount) => {
+  const n = Number(amount) || 0;
+  if (n >= 10000000) return '₹' + (n / 10000000).toFixed(n % 10000000 ? 1 : 0) + 'Cr';
+  if (n >= 100000) return '₹' + (n / 100000).toFixed(n % 100000 ? 1 : 0) + 'L';
+  if (n >= 1000) return '₹' + (n / 1000).toFixed(n % 1000 ? 1 : 0) + 'K';
+  return '₹' + n.toLocaleString('en-IN');
+};
+
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
@@ -86,7 +99,7 @@ const AdminDashboard = () => {
                 onClick={() => navigate('/admin/projects')}
                 className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-white bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-all"
               >
-                <FaFolder size={16} /> My Projects
+                <FaFolder size={16} /> All Projects
               </button>
               <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all">
                 <FaSignOutAlt size={16} /> Logout
@@ -111,21 +124,21 @@ const AdminDashboard = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="glass rounded-2xl p-5 border border-white/5">
-                <p className="text-gray-500 text-xs uppercase tracking-wider">Total Users</p>
-                <p className="text-3xl font-bold text-white mt-1">{stats.users}</p>
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
+              <div className="glass rounded-2xl p-4 sm:p-5 border border-white/5">
+                <p className="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Users</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-1">{stats.users}</p>
               </div>
               <button
                 onClick={() => navigate('/admin/projects')}
-                className="glass rounded-2xl p-5 border border-white/5 text-left hover:border-accent/30 transition-all cursor-pointer"
+                className="glass rounded-2xl p-4 sm:p-5 border border-white/5 text-left hover:border-accent/30 transition-all cursor-pointer"
               >
-                <p className="text-gray-500 text-xs uppercase tracking-wider">Total Projects</p>
-                <p className="text-3xl font-bold text-white mt-1">{stats.projects}</p>
+                <p className="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Projects</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-1">{stats.projects}</p>
               </button>
-              <div className="glass rounded-2xl p-5 border border-white/5">
-                <p className="text-gray-500 text-xs uppercase tracking-wider">Revenue</p>
-                <p className="text-3xl font-bold text-accent mt-1">₹{stats.revenue.toLocaleString('en-IN')}</p>
+              <div className="glass rounded-2xl p-4 sm:p-5 border border-white/5">
+                <p className="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Revenue</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-accent mt-1 truncate" title={money(stats.revenue)}>{moneyShort(stats.revenue)}</p>
               </div>
             </div>
           </div>

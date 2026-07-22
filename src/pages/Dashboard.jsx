@@ -23,6 +23,15 @@ const money = (amount) =>
     .format(Number(amount) || 0)
     .replace('INR', '₹');
 
+// Chhota format (mobile par bade amount fit karne ke liye): ₹1L, ₹1.5L, ₹1Cr
+const moneyShort = (amount) => {
+  const n = Number(amount) || 0;
+  if (n >= 10000000) return '₹' + (n / 10000000).toFixed(n % 10000000 ? 1 : 0) + 'Cr';
+  if (n >= 100000) return '₹' + (n / 100000).toFixed(n % 100000 ? 1 : 0) + 'L';
+  if (n >= 1000) return '₹' + (n / 1000).toFixed(n % 1000 ? 1 : 0) + 'K';
+  return '₹' + n.toLocaleString('en-IN');
+};
+
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -136,17 +145,17 @@ const Dashboard = () => {
 
             {/* Quick stats */}
             <div className="grid grid-cols-3 gap-3 sm:gap-4">
-              <div className="glass rounded-2xl p-5 border border-white/5">
-                <p className="text-gray-500 text-xs uppercase tracking-wider">Projects</p>
-                <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{summary.total}</p>
+              <div className="glass rounded-2xl p-4 sm:p-5 border border-white/5">
+                <p className="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Projects</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-1">{summary.total}</p>
               </div>
-              <div className="glass rounded-2xl p-5 border border-white/5">
-                <p className="text-gray-500 text-xs uppercase tracking-wider">Active</p>
-                <p className="text-2xl sm:text-3xl font-bold text-accent mt-1">{summary.active}</p>
+              <div className="glass rounded-2xl p-4 sm:p-5 border border-white/5">
+                <p className="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Active</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-accent mt-1">{summary.active}</p>
               </div>
-              <div className="glass rounded-2xl p-5 border border-white/5">
-                <p className="text-gray-500 text-xs uppercase tracking-wider">Total Paid</p>
-                <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{money(summary.paid)}</p>
+              <div className="glass rounded-2xl p-4 sm:p-5 border border-white/5">
+                <p className="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Total Paid</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-1 truncate" title={money(summary.paid)}>{moneyShort(summary.paid)}</p>
               </div>
             </div>
 
