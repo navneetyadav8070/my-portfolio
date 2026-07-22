@@ -3,8 +3,14 @@
 // Get a FREE key at https://aistudio.google.com/apikey and add it in
 // Vercel → Settings → Environment Variables as GEMINI_API_KEY.
 
-// Free, fast model. Override with GEMINI_MODEL if you like (e.g. "gemini-1.5-flash").
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+// Models are tried in order until one works (auto-recovers from a bad name).
+const MODELS = [
+  process.env.GEMINI_MODEL,
+  'gemini-2.0-flash',
+  'gemini-2.5-flash',
+  'gemini-flash-latest',
+  'gemini-1.5-flash',
+].filter(Boolean);
 
 const SYSTEM_PROMPT = `You are the friendly AI assistant on Navneet Yadav's freelance developer portfolio website.
 
@@ -25,14 +31,20 @@ HOW TO ANSWER (very important):
 - If a "USER PROJECT CONTEXT" block is given, the user is a logged-in client — use it to answer about THEIR projects (status, payment, timeline) briefly. Never invent project data.`;
 
 export default async function handler(req, res) {
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  // Quick diagnostic: GET /api/chat  →  is the key present, which models will be tried
+  if (req.method === 'GET') {
+    res.status(200).json({ ok: true, hasKey: !!apiKey, models: MODELS });
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'method_not_allowed' });
     return;
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    // Not configured yet — the frontend falls back to its built-in answers.
     res.status(503).json({ error: 'not_configured' });
     return;
   }
@@ -50,7 +62,6 @@ export default async function handler(req, res) {
         parts: [{ text: m.content.slice(0, 2000) }],
       }));
 
-    // Gemini requires the first turn to be from the user.
     while (contents.length && contents[0].role === 'model') contents.shift();
     if (contents.length === 0) {
       res.status(400).json({ error: 'no_messages' });
@@ -62,42 +73,64 @@ export default async function handler(req, res) {
       system += `\n\nUSER PROJECT CONTEXT (the logged-in client's own data):\n${body.context.slice(0, 3000)}`;
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
-    const upstream = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: system }] },
-        contents,
-        generationConfig: { temperature: 0.6, maxOutputTokens: 250 },
-      }),
+    const payload = JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents,
+      generationConfig: { temperature: 0.6, maxOutputTokens: 250 },
     });
 
-    if (!upstream.ok) {
-      const detail = await upstream.text().catch(() => '');
-      console.error('Gemini API error:', upstream.status, detail);
-      res.status(502).json({ error: 'upstream_error' });
-      return;
+    let lastStatus = 0;
+    let lastDetail = '';
+
+    // Try each candidate model until one responds successfully.
+    for (const model of MODELS) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+      let upstream;
+      try {
+        upstream = await fetch(url, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
+          body: payload,
+        });
+      } catch (e) {
+        lastStatus = 0;
+        lastDetail = String(e && e.message ? e.message : e);
+        continue;
+      }
+
+      if (!upstream.ok) {
+        lastStatus = upstream.status;
+        lastDetail = await upstream.text().catch(() => '');
+        // 400/404 usually = bad model name → try the next candidate.
+        // 401/403/429 = key/quota → the next model won't help, but trying is harmless.
+        continue;
+      }
+
+      const data = await upstream.json();
+      const cand = data.candidates && data.candidates[0];
+      const reply = cand && cand.content && Array.isArray(cand.content.parts)
+        ? cand.content.parts.map((p) => p.text || '').join('').trim()
+        : '';
+
+      if (reply) {
+        res.status(200).json({ reply });
+        return;
+      }
+      // Empty (safety block etc.) — don't keep looping models, just fall through.
+      lastStatus = 200;
+      lastDetail = JSON.stringify(data).slice(0, 300);
+      break;
     }
 
-    const data = await upstream.json();
-
-    // Blocked by safety filters, or empty response.
-    const cand = data.candidates && data.candidates[0];
-    const reply = cand && cand.content && Array.isArray(cand.content.parts)
-      ? cand.content.parts.map((p) => p.text || '').join('').trim()
-      : '';
-
-    if (!reply) {
-      res.status(200).json({
-        reply: "Sorry, I couldn't answer that. Feel free to rephrase, or use the Contact form to reach Navneet.",
-      });
-      return;
-    }
-
-    res.status(200).json({ reply });
+    // Every model failed — surface the real reason so it can be fixed.
+    console.error('Gemini failed:', lastStatus, lastDetail);
+    res.status(502).json({
+      error: 'upstream_error',
+      status: lastStatus,
+      detail: (lastDetail || '').slice(0, 400),
+    });
   } catch (err) {
     console.error('chat handler error:', err);
-    res.status(500).json({ error: 'server_error' });
+    res.status(500).json({ error: 'server_error', detail: String(err && err.message ? err.message : err) });
   }
 }
