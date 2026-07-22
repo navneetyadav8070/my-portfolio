@@ -152,7 +152,9 @@ const Checkout = () => {
             remainingAmount: remainingAmount,
             paymentType: paymentType,
             status: isHalfPayment ? 'advance_paid' : 'fully_paid',
-            progress: isHalfPayment ? 10 : 50,
+            workStatus: 'in_progress',   // default: In Process
+            progress: 0,                 // default: 0%
+            estimatedTime: '5 days',     // default ETA (admin baad me change kar sakta hai)
             paymentId: response.razorpay_payment_id,
             paymentDate: serverTimestamp(),
             milestones: [

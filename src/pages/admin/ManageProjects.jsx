@@ -23,6 +23,15 @@ const money = (amount) =>
     .format(Number(amount) || 0)
     .replace('INR', '₹');
 
+// Chhota format (mobile par bade amount fit karne ke liye): ₹1L, ₹1.5L, ₹1Cr
+const moneyShort = (amount) => {
+  const n = Number(amount) || 0;
+  if (n >= 10000000) return '₹' + (n / 10000000).toFixed(n % 10000000 ? 1 : 0) + 'Cr';
+  if (n >= 100000) return '₹' + (n / 100000).toFixed(n % 100000 ? 1 : 0) + 'L';
+  if (n >= 1000) return '₹' + (n / 1000).toFixed(n % 1000 ? 1 : 0) + 'K';
+  return '₹' + n.toLocaleString('en-IN');
+};
+
 const formatDate = (ts) => {
   if (!ts) return 'N/A';
   const d = ts?.toDate ? ts.toDate() : new Date(ts);
@@ -224,23 +233,23 @@ const ManageProjects = () => {
         </button>
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">My Projects</h1>
+          <h1 className="text-3xl font-bold text-white">All Projects</h1>
           <p className="text-gray-400 text-sm mt-1">Sabhi clients ki payment aur project status ek jagah — manage karne ke liye kisi row par click karein.</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="glass rounded-2xl p-5 border border-white/5">
-            <p className="text-gray-500 text-xs uppercase tracking-wider">Total Projects</p>
-            <p className="text-3xl font-bold text-white mt-1">{stats.count}</p>
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/5">
+            <p className="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Projects</p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-1">{stats.count}</p>
           </div>
-          <div className="glass rounded-2xl p-5 border border-accent/10">
-            <p className="text-gray-500 text-xs uppercase tracking-wider">Total Received</p>
-            <p className="text-3xl font-bold text-accent mt-1">{money(stats.revenue)}</p>
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-accent/10">
+            <p className="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Received</p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-accent mt-1 truncate" title={money(stats.revenue)}>{moneyShort(stats.revenue)}</p>
           </div>
-          <div className="glass rounded-2xl p-5 border border-white/5">
-            <p className="text-gray-500 text-xs uppercase tracking-wider">Pending (Bakaya)</p>
-            <p className="text-3xl font-bold text-yellow-400 mt-1">{money(stats.pending)}</p>
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/5">
+            <p className="text-gray-500 text-[10px] sm:text-xs uppercase tracking-wider">Bakaya</p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-400 mt-1 truncate" title={money(stats.pending)}>{moneyShort(stats.pending)}</p>
           </div>
         </div>
 
