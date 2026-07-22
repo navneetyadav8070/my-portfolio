@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth, db, getAllUsers, getAllProjects } from '../firebase/config';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaFolder, FaCog, FaSignOutAlt, FaUserShield } from 'react-icons/fa';
+import { FaUsers, FaFolder, FaSignOutAlt, FaUserShield, FaArrowRight } from 'react-icons/fa';
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -81,14 +81,17 @@ const AdminDashboard = () => {
             </div>
 
             <div className="glass rounded-2xl p-4 border border-white/5 space-y-2">
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-white bg-accent/10 border border-accent/20">
-                <FaUsers size={16} /> All Users
+              <button
+                onClick={() => navigate('/admin/projects')}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-white bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-all"
+              >
+                <FaFolder size={16} /> Manage Projects
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <FaFolder size={16} /> All Projects
-              </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <FaCog size={16} /> Settings
+              <button
+                onClick={() => navigate('/admin/projects')}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+              >
+                <FaUsers size={16} /> Payments & Clients
               </button>
               <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all">
                 <FaSignOutAlt size={16} /> Logout
@@ -97,9 +100,17 @@ const AdminDashboard = () => {
           </div>
 
           <div className="lg:col-span-3 space-y-6">
-            <div className="glass rounded-2xl p-6 border border-accent/10">
-              <h2 className="text-2xl font-bold text-white mb-2">Admin Dashboard 👑</h2>
-              <p className="text-gray-400">Welcome back, {user?.displayName || 'Admin'}!</p>
+            <div className="glass rounded-2xl p-6 border border-accent/10 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Admin Dashboard 👑</h2>
+                <p className="text-gray-400">Welcome back, {user?.displayName || 'Admin'}!</p>
+              </div>
+              <button
+                onClick={() => navigate('/admin/projects')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-accent text-dark font-semibold rounded-xl hover:bg-accent-hover transition-all whitespace-nowrap"
+              >
+                <FaFolder size={14} /> Manage Projects <FaArrowRight size={12} />
+              </button>
             </div>
 
             <div className="grid sm:grid-cols-3 gap-4">
@@ -107,10 +118,13 @@ const AdminDashboard = () => {
                 <p className="text-gray-500 text-xs uppercase tracking-wider">Total Users</p>
                 <p className="text-3xl font-bold text-white mt-1">{stats.users}</p>
               </div>
-              <div className="glass rounded-2xl p-5 border border-white/5">
+              <button
+                onClick={() => navigate('/admin/projects')}
+                className="glass rounded-2xl p-5 border border-white/5 text-left hover:border-accent/30 transition-all cursor-pointer"
+              >
                 <p className="text-gray-500 text-xs uppercase tracking-wider">Total Projects</p>
                 <p className="text-3xl font-bold text-white mt-1">{stats.projects}</p>
-              </div>
+              </button>
               <div className="glass rounded-2xl p-5 border border-white/5">
                 <p className="text-gray-500 text-xs uppercase tracking-wider">Revenue</p>
                 <p className="text-3xl font-bold text-accent mt-1">₹{stats.revenue.toLocaleString('en-IN')}</p>
