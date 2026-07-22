@@ -22,18 +22,13 @@ const STATUS_LABEL = {
 };
 const statusOf = (p) => STATUS_LABEL[p.workStatus || (Number(p.progress) >= 100 ? 'completed' : 'in_progress')] || 'In Process';
 
-// Static answers about Navneet
+// Static answers about Navneet — kept short & crisp
 const ANSWERS = {
-  projects:
-    `${OWNER.name} has delivered 50+ projects — including custom e-commerce platforms (React + FastAPI), realtime Firebase apps, Telegram automation bots, custom dashboards and AI-integrated products.\n\n👉 Scroll to the "Projects" section to see featured work.`,
-  skills:
-    `Here's what ${OWNER.name} works with:\n\n• Frontend: React, Next.js, JavaScript, TypeScript, Tailwind CSS\n• Backend: Node.js, Python, Java, PHP, FastAPI, REST APIs\n• AI/ML: OpenAI API, LangChain, RAG systems, AI integration\n• Mobile: Android (Java/Kotlin), Firebase\n• DevOps: AWS, Docker, CI/CD, Git, Linux\n• Marketing: SEO, Google & Meta Ads`,
-  experience:
-    `${OWNER.name} has 4+ years of hands-on experience building websites, web apps, Android apps and AI integrations — combined with digital marketing to help products actually grow.`,
-  services:
-    `${OWNER.name} offers:\n\n• Custom websites & web apps\n• E-commerce platforms\n• AI/LLM integration\n• Android apps\n• Custom dashboards & REST APIs\n• Digital marketing (SEO / Ads)\n\nAvailable for remote projects worldwide. 🌍`,
-  contact:
-    `You can reach ${OWNER.name} here:\n\n📧 ${OWNER.email}\n📞 ${OWNER.phone}\n📍 ${OWNER.location}\n\nOr use the Contact form on this page.`,
+  projects: `${OWNER.name} has delivered 50+ projects — e-commerce sites, realtime apps, bots, dashboards and AI products. See the Projects section below. 👇`,
+  skills: `React, Next.js, Node.js, Python, FastAPI, AI/LLM integration, Android, plus AWS & Docker. Full stack, end to end.`,
+  experience: `4+ years building websites, web apps, Android apps and AI integrations.`,
+  services: `Websites, web apps, e-commerce, AI integration, Android apps and dashboards — remote, worldwide.`,
+  contact: `📧 ${OWNER.email} · 📞 ${OWNER.phone} · ${OWNER.location}. Or use the Contact form.`,
 };
 
 // Guest quick commands (English)
