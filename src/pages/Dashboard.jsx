@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, getClientProjects } from '../firebase/config';
 import { signOut } from 'firebase/auth';
-import { FaSignOutAlt, FaClock, FaInfoCircle, FaHome, FaPlus } from 'react-icons/fa';
+import { FaSignOutAlt, FaClock, FaInfoCircle, FaHome, FaPlus, FaFolder } from 'react-icons/fa';
 import PasswordManager from '../components/PasswordManager';
 
 const WORK_STATUS_LABELS = {
@@ -105,15 +105,12 @@ const Dashboard = () => {
               <span className="inline-block mt-2 text-accent text-xs px-3 py-1 rounded-full bg-accent/10 border border-accent/20">Client</span>
             </div>
 
-            <div className="glass rounded-2xl p-4 border border-white/5 space-y-2">
-              <Link to="/#services" className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-dark bg-accent font-semibold hover:bg-accent-hover transition-all">
-                <FaPlus size={14} /> Start New Project
-              </Link>
-              <Link to="/" className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-all">
-                <FaHome size={16} /> Back to Website
-              </Link>
+            <div className="glass rounded-2xl p-3 border border-white/5 space-y-1.5">
+              <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-white bg-accent/10 border border-accent/20 font-medium">
+                <FaFolder size={15} /> My Projects
+              </div>
               <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all bg-transparent border-none cursor-pointer">
-                <FaSignOutAlt size={16} /> Logout
+                <FaSignOutAlt size={15} /> Logout
               </button>
             </div>
 
