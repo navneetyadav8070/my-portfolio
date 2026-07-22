@@ -76,7 +76,10 @@ export default async function handler(req, res) {
     const payload = JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents,
-      generationConfig: { temperature: 0.6, maxOutputTokens: 250 },
+      // Bigger ceiling so the visible answer is never cut off — newer "flash"
+      // models spend part of the budget on internal thinking. The answer still
+      // stays short because the system prompt asks for 1-2 sentences.
+      generationConfig: { temperature: 0.6, maxOutputTokens: 2048 },
     });
 
     let lastStatus = 0;
