@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth, db, getAllUsers, getAllProjects } from '../firebase/config';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaFolder, FaSignOutAlt, FaUserShield, FaArrowRight } from 'react-icons/fa';
+import { FaFolder, FaSignOutAlt, FaUserShield, FaArrowRight } from 'react-icons/fa';
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -85,13 +85,7 @@ const AdminDashboard = () => {
                 onClick={() => navigate('/admin/projects')}
                 className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-white bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-all"
               >
-                <FaFolder size={16} /> Manage Projects
-              </button>
-              <button
-                onClick={() => navigate('/admin/projects')}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-              >
-                <FaUsers size={16} /> Payments & Clients
+                <FaFolder size={16} /> My Projects
               </button>
               <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all">
                 <FaSignOutAlt size={16} /> Logout

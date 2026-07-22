@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, getClientProjects } from '../firebase/config';
 import { signOut } from 'firebase/auth';
-import { FaUser, FaFolder, FaCog, FaSignOutAlt, FaEnvelope, FaClock, FaInfoCircle } from 'react-icons/fa';
+import { FaSignOutAlt, FaEnvelope, FaClock, FaInfoCircle, FaHome, FaPlus } from 'react-icons/fa';
 
 const WORK_STATUS_LABELS = {
   not_started: { label: 'Not Started', color: 'bg-white/5 text-gray-400 border-white/10' },
-  in_progress: { label: 'In Progress', color: 'bg-accent/10 text-accent border-accent/20' },
+  in_progress: { label: 'In Process', color: 'bg-accent/10 text-accent border-accent/20' },
   in_review: { label: 'In Review', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
   on_hold: { label: 'On Hold', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20' },
   completed: { label: 'Completed', color: 'bg-green-500/10 text-green-400 border-green-500/20' },
 };
 
 const workMeta = (p) => {
-  const key = p.workStatus || (p.progress >= 100 ? 'completed' : 'in_progress');
+  const key = p.workStatus || (Number(p.progress) >= 100 ? 'completed' : 'in_progress');
   return WORK_STATUS_LABELS[key] || WORK_STATUS_LABELS.in_progress;
 };
 
@@ -35,7 +35,6 @@ const Dashboard = () => {
         return;
       }
       setUser(user);
-      // Client ke apne projects laao
       try {
         const result = await getClientProjects(user.email);
         setProjects(result.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -56,6 +55,12 @@ const Dashboard = () => {
     }
   };
 
+  const summary = useMemo(() => ({
+    total: projects.length,
+    active: projects.filter(p => (p.workStatus || (Number(p.progress) >= 100 ? 'completed' : 'in_progress')) !== 'completed').length,
+    paid: projects.reduce((s, p) => s + (Number(p.paidAmount) || 0), 0),
+  }), [projects]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-dark flex items-center justify-center">
@@ -65,36 +70,48 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-dark pt-24 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-dark">
+      {/* Top bar — client yahan se home ja sakta hai */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-dark/95 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-gradient-to-br from-accent to-green-400 rounded-xl flex items-center justify-center">
+              <span className="text-lg font-bold text-dark">NY</span>
+            </div>
+            <span className="text-white font-bold hidden sm:block">Navneet Yadav</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white glass rounded-xl border border-white/10 hover:border-accent/30 transition-all">
+              <FaHome size={14} /> <span className="hidden sm:inline">Home</span>
+            </Link>
+            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-xl border border-transparent hover:border-red-500/20 transition-all bg-transparent cursor-pointer">
+              <FaSignOutAlt size={14} /> <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
             <div className="glass rounded-2xl p-6 border border-accent/10 text-center">
               <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-3">
-                <span className="text-3xl">
-                  {user?.displayName?.charAt(0) || 'U'}
-                </span>
+                <span className="text-3xl text-accent font-bold">{user?.displayName?.charAt(0)?.toUpperCase() || 'U'}</span>
               </div>
-              <h3 className="text-white font-bold">{user?.displayName || 'User'}</h3>
-              <p className="text-gray-400 text-sm">{user?.email}</p>
-              <p className="text-accent text-xs mt-1">Client</p>
+              <h3 className="text-white font-bold">{user?.displayName || 'Client'}</h3>
+              <p className="text-gray-400 text-sm break-all">{user?.email}</p>
+              <span className="inline-block mt-2 text-accent text-xs px-3 py-1 rounded-full bg-accent/10 border border-accent/20">Client</span>
             </div>
 
             <div className="glass rounded-2xl p-4 border border-white/5 space-y-2">
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-white bg-accent/10 border border-accent/20">
-                <FaUser size={16} /> My Profile
-              </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <FaFolder size={16} /> My Projects
-              </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <FaCog size={16} /> Settings
-              </button>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all"
-              >
+              <Link to="/#services" className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-dark bg-accent font-semibold hover:bg-accent-hover transition-all">
+                <FaPlus size={14} /> Start New Project
+              </Link>
+              <Link to="/" className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-all">
+                <FaHome size={16} /> Back to Website
+              </Link>
+              <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all bg-transparent border-none cursor-pointer">
                 <FaSignOutAlt size={16} /> Logout
               </button>
             </div>
@@ -103,40 +120,39 @@ const Dashboard = () => {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
             <div className="glass rounded-2xl p-6 border border-accent/10">
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome, {user?.displayName || 'User'}! 👋</h2>
-              <p className="text-gray-400">Manage your projects and profile from here.</p>
+              <h2 className="text-2xl font-bold text-white mb-1">Welcome, {user?.displayName || 'Client'}! 👋</h2>
+              <p className="text-gray-400 text-sm flex items-center gap-2">
+                <FaEnvelope className="text-accent text-xs" /> {user?.email}
+              </p>
             </div>
 
-            {/* Profile Info */}
-            <div className="grid sm:grid-cols-2 gap-4">
+            {/* Quick stats */}
+            <div className="grid grid-cols-3 gap-4">
               <div className="glass rounded-2xl p-5 border border-white/5">
-                <p className="text-gray-500 text-xs uppercase tracking-wider">Email</p>
-                <p className="text-white font-medium flex items-center gap-2 mt-1">
-                  <FaEnvelope className="text-accent text-sm" /> {user?.email}
-                </p>
+                <p className="text-gray-500 text-xs uppercase tracking-wider">Projects</p>
+                <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{summary.total}</p>
               </div>
               <div className="glass rounded-2xl p-5 border border-white/5">
-                <p className="text-gray-500 text-xs uppercase tracking-wider">Member Since</p>
-                <p className="text-white font-medium mt-1">
-                  {user?.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A'}
-                </p>
+                <p className="text-gray-500 text-xs uppercase tracking-wider">Active</p>
+                <p className="text-2xl sm:text-3xl font-bold text-accent mt-1">{summary.active}</p>
+              </div>
+              <div className="glass rounded-2xl p-5 border border-white/5">
+                <p className="text-gray-500 text-xs uppercase tracking-wider">Total Paid</p>
+                <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{money(summary.paid)}</p>
               </div>
             </div>
 
-            {/* Projects Section */}
+            {/* Projects */}
             <div className="glass rounded-2xl p-6 border border-white/5">
               <h3 className="text-lg font-bold text-white mb-4">
                 Your Projects {projects.length > 0 && <span className="text-accent">({projects.length})</span>}
               </h3>
 
               {projects.length === 0 ? (
-                <div className="text-center py-8">
+                <div className="text-center py-10">
                   <div className="text-4xl mb-3">🚀</div>
-                  <p className="text-gray-400">No projects yet</p>
-                  <Link
-                    to="/#services"
-                    className="inline-block mt-3 px-6 py-2.5 bg-accent text-dark font-semibold rounded-xl hover:bg-accent-hover transition-all"
-                  >
+                  <p className="text-gray-400">Abhi tak koi project nahi.</p>
+                  <Link to="/#services" className="inline-block mt-4 px-6 py-2.5 bg-accent text-dark font-semibold rounded-xl hover:bg-accent-hover transition-all">
                     Start a Project
                   </Link>
                 </div>
@@ -148,17 +164,11 @@ const Dashboard = () => {
                     const remaining = Number(project.remainingAmount) || 0;
                     return (
                       <div key={project.id} className="glass rounded-xl p-5 border border-white/5">
-                        {/* Title + status */}
                         <div className="flex items-start justify-between gap-3 mb-3">
-                          <p className="text-white font-semibold">
-                            {project.projectName || project.title || project.service || 'Untitled Project'}
-                          </p>
-                          <span className={`text-xs px-3 py-1 rounded-full whitespace-nowrap border ${meta.color}`}>
-                            {meta.label}
-                          </span>
+                          <p className="text-white font-semibold">{project.projectName || 'Untitled Project'}</p>
+                          <span className={`text-xs px-3 py-1 rounded-full whitespace-nowrap border ${meta.color}`}>{meta.label}</span>
                         </div>
 
-                        {/* Progress bar */}
                         <div className="mb-3">
                           <div className="flex justify-between text-xs text-gray-400 mb-1">
                             <span>Progress</span>
@@ -169,20 +179,14 @@ const Dashboard = () => {
                           </div>
                         </div>
 
-                        {/* Payment + estimated time */}
                         <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-gray-400">
                           <span>Paid: <span className="text-accent font-medium">{money(project.paidAmount)}</span> / {money(project.totalAmount)}</span>
-                          {remaining > 0 && (
-                            <span>Remaining: <span className="text-yellow-400 font-medium">{money(remaining)}</span></span>
-                          )}
+                          {remaining > 0 && <span>Remaining: <span className="text-yellow-400 font-medium">{money(remaining)}</span></span>}
                           {project.estimatedTime && (
-                            <span className="flex items-center gap-1.5">
-                              <FaClock className="text-accent/70" /> ETA: <span className="text-white">{project.estimatedTime}</span>
-                            </span>
+                            <span className="flex items-center gap-1.5"><FaClock className="text-accent/70" /> ETA: <span className="text-white">{project.estimatedTime}</span></span>
                           )}
                         </div>
 
-                        {/* Admin note */}
                         {project.adminNote && (
                           <div className="mt-3 flex items-start gap-2 text-sm text-gray-300 bg-white/[0.03] rounded-lg p-3 border border-white/5">
                             <FaInfoCircle className="text-accent mt-0.5 flex-shrink-0" />
