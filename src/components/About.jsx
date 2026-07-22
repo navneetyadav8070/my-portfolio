@@ -77,9 +77,9 @@ const About = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 {ABOUT_CONTENT.info.map((item, index) => (
-                  <div key={index} className="glass rounded-xl p-4 border border-white/5 hover:border-accent/10 transition-all duration-300">
+                  <div key={index} className="glass rounded-xl p-4 border border-white/5 hover:border-accent/10 transition-all duration-300 min-w-0">
                     <p className="text-[10px] text-gray-500 uppercase tracking-wider">{item.label}</p>
-                    <p className="text-white text-sm font-medium mt-1">{item.value}</p>
+                    <p className={`text-white text-sm font-medium mt-1 ${item.label === 'Email' ? 'break-all' : 'break-words'}`}>{item.value}</p>
                   </div>
                 ))}
               </div>
