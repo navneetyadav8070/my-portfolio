@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, getClientProjects } from '../firebase/config';
 import { signOut } from 'firebase/auth';
-import { FaSignOutAlt, FaEnvelope, FaClock, FaInfoCircle, FaHome, FaPlus } from 'react-icons/fa';
+import { FaSignOutAlt, FaClock, FaInfoCircle, FaHome, FaPlus } from 'react-icons/fa';
+import PasswordManager from '../components/PasswordManager';
 
 const WORK_STATUS_LABELS = {
   not_started: { label: 'Not Started', color: 'bg-white/5 text-gray-400 border-white/10' },
@@ -115,19 +116,29 @@ const Dashboard = () => {
                 <FaSignOutAlt size={16} /> Logout
               </button>
             </div>
+
+            {/* Password: Google user ko Set, baaki ko Change */}
+            <PasswordManager user={user} />
           </div>
 
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
-            <div className="glass rounded-2xl p-6 border border-accent/10">
-              <h2 className="text-2xl font-bold text-white mb-1">Welcome, {user?.displayName || 'Client'}! 👋</h2>
-              <p className="text-gray-400 text-sm flex items-center gap-2">
-                <FaEnvelope className="text-accent text-xs" /> {user?.email}
-              </p>
+            {/* Attractive banner (naam/email dobara nahi — wo sidebar me hai) */}
+            <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8 border border-accent/20 bg-gradient-to-br from-accent/10 via-dark to-dark">
+              <div className="relative z-10">
+                <p className="text-accent text-[11px] uppercase tracking-[0.2em] mb-2">Client Dashboard</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Your Project Overview</h2>
+                <p className="text-gray-400 text-sm max-w-md">Apne projects ka live progress, payments aur updates yahaan dekho.</p>
+                <Link to="/#services" className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-accent text-dark font-semibold rounded-xl hover:bg-accent-hover transition-all text-sm">
+                  <FaPlus size={13} /> Start New Project
+                </Link>
+              </div>
+              <div className="absolute -right-10 -top-10 w-44 h-44 bg-accent/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute right-10 bottom-0 w-24 h-24 bg-green-400/10 rounded-full blur-2xl pointer-events-none" />
             </div>
 
             {/* Quick stats */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
               <div className="glass rounded-2xl p-5 border border-white/5">
                 <p className="text-gray-500 text-xs uppercase tracking-wider">Projects</p>
                 <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{summary.total}</p>

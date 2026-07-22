@@ -4,6 +4,7 @@ import { auth, db, getAllUsers, getAllProjects } from '../firebase/config';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { FaFolder, FaSignOutAlt, FaUserShield, FaArrowRight } from 'react-icons/fa';
+import PasswordManager from '../components/PasswordManager';
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -33,7 +34,7 @@ const AdminDashboard = () => {
         // Real stats laao
         try {
           const [users, projects] = await Promise.all([getAllUsers(), getAllProjects()]);
-          const revenue = projects.reduce((sum, p) => sum + (Number(p.amount || p.price) || 0), 0);
+          const revenue = projects.reduce((sum, p) => sum + (Number(p.paidAmount ?? p.amount ?? p.price) || 0), 0);
           setStats({ users: users.length, projects: projects.length, revenue });
         } catch (err) {
           console.error('Stats load nahi hue:', err);
@@ -65,7 +66,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-dark pt-24 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-dark pt-20 sm:pt-24 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1 space-y-4">
@@ -91,23 +92,26 @@ const AdminDashboard = () => {
                 <FaSignOutAlt size={16} /> Logout
               </button>
             </div>
+
+            {/* Password: Google user ko Set, baaki ko Change */}
+            <PasswordManager user={user} />
           </div>
 
           <div className="lg:col-span-3 space-y-6">
-            <div className="glass rounded-2xl p-6 border border-accent/10 flex flex-wrap items-center justify-between gap-4">
+            <div className="glass rounded-2xl p-6 border border-accent/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Admin Dashboard 👑</h2>
-                <p className="text-gray-400">Welcome back, {user?.displayName || 'Admin'}!</p>
+                <h2 className="text-2xl font-bold text-white mb-1">Admin Dashboard 👑</h2>
+                <p className="text-gray-400 text-sm">Welcome back, {user?.displayName || 'Admin'}!</p>
               </div>
               <button
                 onClick={() => navigate('/admin/projects')}
-                className="flex items-center gap-2 px-5 py-2.5 bg-accent text-dark font-semibold rounded-xl hover:bg-accent-hover transition-all whitespace-nowrap"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-accent text-dark font-semibold rounded-xl hover:bg-accent-hover transition-all whitespace-nowrap"
               >
                 <FaFolder size={14} /> Manage Projects <FaArrowRight size={12} />
               </button>
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="glass rounded-2xl p-5 border border-white/5">
                 <p className="text-gray-500 text-xs uppercase tracking-wider">Total Users</p>
                 <p className="text-3xl font-bold text-white mt-1">{stats.users}</p>

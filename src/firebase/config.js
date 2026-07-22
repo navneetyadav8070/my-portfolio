@@ -12,7 +12,12 @@ import {
   isSignInWithEmailLink,
   sendPasswordResetEmail,
   sendEmailVerification,
-  updateProfile
+  updateProfile,
+  EmailAuthProvider,
+  linkWithCredential,
+  updatePassword,
+  reauthenticateWithCredential,
+  reauthenticateWithPopup
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -149,4 +154,41 @@ export const getAllUsers = async () => {
 
 export const updateProjectStatus = async (projectId, data) => {
   await updateDoc(doc(db, 'projects', projectId), { ...data, updatedAt: serverTimestamp() });
+};
+
+// ==========================================
+// PASSWORD MANAGEMENT
+// ==========================================
+
+// User ke paas password provider hai ya nahi (Google-only user ke paas nahi hota)
+export const hasPasswordProvider = (user) =>
+  !!(user?.providerData || []).some((p) => p.providerId === 'password');
+
+// Google user apna password SET kare (email/password provider link karke)
+export const setUserPassword = async (newPassword) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Aap logged in nahi ho.');
+  const cred = EmailAuthProvider.credential(user.email, newPassword);
+  try {
+    await linkWithCredential(user, cred);
+  } catch (err) {
+    if (err.code === 'auth/requires-recent-login') {
+      // Google se dobara verify karke retry
+      await reauthenticateWithPopup(user, googleProvider);
+      await linkWithCredential(user, cred);
+    } else {
+      throw err;
+    }
+  }
+  return { success: true };
+};
+
+// Jis user ke paas password hai wo CHANGE kare (pehle current password se verify)
+export const changeUserPassword = async (currentPassword, newPassword) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Aap logged in nahi ho.');
+  const cred = EmailAuthProvider.credential(user.email, currentPassword);
+  await reauthenticateWithCredential(user, cred); // galat current password → error
+  await updatePassword(user, newPassword);
+  return { success: true };
 };
