@@ -60,6 +60,7 @@ const AIAssistant = () => {
     { from: 'bot', text: `Hi! 👋 I'm ${OWNER.name}'s assistant. Ask me about his projects, skills, experience or services. Just tap a suggestion below.` },
   ]);
   const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
 
   // Auth state
@@ -144,14 +145,49 @@ const AIAssistant = () => {
     return 'help';
   };
 
-  const handleSend = (e) => {
+  // Logged-in client ka project context (real AI ko bhejne ke liye)
+  const buildContext = () => {
+    if (!user || !projects || projects.length === 0) return '';
+    const lines = projects.map((p) =>
+      `- ${p.projectName || 'Project'}: status ${statusOf(p)}, ${Number(p.progress) || 0}% done, ` +
+      `paid ${money(p.paidAmount)} of ${money(p.totalAmount)}, remaining ${money(p.remainingAmount)}, ETA ${p.estimatedTime || 'TBD'}`
+    );
+    return `Logged-in client: ${user.displayName || user.email} (${user.email}).\nTheir projects:\n${lines.join('\n')}`;
+  };
+
+  // Typed sawaal → real AI (Claude API). API na ho / fail ho to built-in jawab (hybrid).
+  const handleSend = async (e) => {
     e.preventDefault();
     const text = input.trim();
-    if (!text) return;
+    if (!text || sending) return;
+
+    // Conversation history (greeting/leading bot turns hata do — pehla turn user hona chahiye)
+    const history = messages
+      .map((m) => ({ role: m.from === 'user' ? 'user' : 'assistant', content: m.text }));
+    while (history.length && history[0].role === 'assistant') history.shift();
+
     pushUser(text);
     setInput('');
-    const key = detectKey(text);
-    setTimeout(() => pushBot(answerFor(key)), 250);
+    setSending(true);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...history, { role: 'user', content: text }],
+          context: buildContext(),
+        }),
+      });
+      if (!res.ok) throw new Error('unavailable');
+      const data = await res.json();
+      if (!data.reply) throw new Error('empty');
+      pushBot(data.reply);
+    } catch {
+      // Fallback: built-in rule-based jawab (API key set na hone par bhi bot chalta rahe)
+      pushBot(answerFor(detectKey(text)));
+    } finally {
+      setSending(false);
+    }
   };
 
   const commands = user ? [...USER_COMMANDS, ...GUEST_COMMANDS] : GUEST_COMMANDS;
@@ -190,6 +226,17 @@ const AIAssistant = () => {
                 </div>
               </div>
             ))}
+            {sending && (
+              <div className="flex justify-start">
+                <div className="bg-white/5 text-gray-400 border border-white/5 rounded-2xl rounded-bl-sm px-3.5 py-2.5 text-sm">
+                  <span className="inline-flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" />
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick commands */}
@@ -214,7 +261,7 @@ const AIAssistant = () => {
               aria-label="Type your question"
               className="flex-1 min-w-0 px-3.5 py-2.5 bg-dark text-white text-sm rounded-xl border border-white/10 focus:border-accent focus:outline-none"
             />
-            <button type="submit" aria-label="Send message" className="w-10 h-10 shrink-0 rounded-xl bg-accent text-dark flex items-center justify-center hover:bg-accent-hover transition-all">
+            <button type="submit" disabled={sending} aria-label="Send message" className="w-10 h-10 shrink-0 rounded-xl bg-accent text-dark flex items-center justify-center hover:bg-accent-hover transition-all disabled:opacity-50">
               <FaPaperPlane size={14} />
             </button>
           </form>
