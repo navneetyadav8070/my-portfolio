@@ -2,7 +2,25 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth, getClientProjects } from '../firebase/config';
 import { signOut } from 'firebase/auth';
-import { FaUser, FaFolder, FaCog, FaSignOutAlt, FaEnvelope } from 'react-icons/fa';
+import { FaUser, FaFolder, FaCog, FaSignOutAlt, FaEnvelope, FaClock, FaInfoCircle } from 'react-icons/fa';
+
+const WORK_STATUS_LABELS = {
+  not_started: { label: 'Not Started', color: 'bg-white/5 text-gray-400 border-white/10' },
+  in_progress: { label: 'In Progress', color: 'bg-accent/10 text-accent border-accent/20' },
+  in_review: { label: 'In Review', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+  on_hold: { label: 'On Hold', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20' },
+  completed: { label: 'Completed', color: 'bg-green-500/10 text-green-400 border-green-500/20' },
+};
+
+const workMeta = (p) => {
+  const key = p.workStatus || (p.progress >= 100 ? 'completed' : 'in_progress');
+  return WORK_STATUS_LABELS[key] || WORK_STATUS_LABELS.in_progress;
+};
+
+const money = (amount) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
+    .format(Number(amount) || 0)
+    .replace('INR', '₹');
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -123,26 +141,57 @@ const Dashboard = () => {
                   </Link>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {projects.map((project) => (
-                    <div key={project.id} className="glass rounded-xl p-4 border border-white/5 flex items-center justify-between gap-4">
-                      <div>
-                        <p className="text-white font-medium">{project.title || project.service || 'Untitled Project'}</p>
-                        {project.description && (
-                          <p className="text-gray-500 text-sm mt-0.5 line-clamp-1">{project.description}</p>
+                <div className="space-y-4">
+                  {projects.map((project) => {
+                    const meta = workMeta(project);
+                    const progress = Number(project.progress) || 0;
+                    const remaining = Number(project.remainingAmount) || 0;
+                    return (
+                      <div key={project.id} className="glass rounded-xl p-5 border border-white/5">
+                        {/* Title + status */}
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <p className="text-white font-semibold">
+                            {project.projectName || project.title || project.service || 'Untitled Project'}
+                          </p>
+                          <span className={`text-xs px-3 py-1 rounded-full whitespace-nowrap border ${meta.color}`}>
+                            {meta.label}
+                          </span>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="mb-3">
+                          <div className="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>Progress</span>
+                            <span className="text-accent font-semibold">{progress}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
+                          </div>
+                        </div>
+
+                        {/* Payment + estimated time */}
+                        <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-gray-400">
+                          <span>Paid: <span className="text-accent font-medium">{money(project.paidAmount)}</span> / {money(project.totalAmount)}</span>
+                          {remaining > 0 && (
+                            <span>Remaining: <span className="text-yellow-400 font-medium">{money(remaining)}</span></span>
+                          )}
+                          {project.estimatedTime && (
+                            <span className="flex items-center gap-1.5">
+                              <FaClock className="text-accent/70" /> ETA: <span className="text-white">{project.estimatedTime}</span>
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Admin note */}
+                        {project.adminNote && (
+                          <div className="mt-3 flex items-start gap-2 text-sm text-gray-300 bg-white/[0.03] rounded-lg p-3 border border-white/5">
+                            <FaInfoCircle className="text-accent mt-0.5 flex-shrink-0" />
+                            <span>{project.adminNote}</span>
+                          </div>
                         )}
                       </div>
-                      <span className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${
-                        project.status === 'completed'
-                          ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                          : project.status === 'in-progress'
-                          ? 'bg-accent/10 text-accent border border-accent/20'
-                          : 'bg-white/5 text-gray-400 border border-white/10'
-                      }`}>
-                        {project.status || 'pending'}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
