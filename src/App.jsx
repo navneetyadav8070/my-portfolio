@@ -14,6 +14,7 @@ import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import AIAssistant from './components/AIAssistant';
 import LoadingScreen from './components/LoadingScreen';
 
 // Route pages lazy-load hoti hain — homepage ke initial bundle se bahar,
@@ -106,6 +107,7 @@ const HomePage = ({ user }) => {
       </main>
       <Footer />
       <ScrollToTop />
+      <AIAssistant />
     </>
   );
 };
