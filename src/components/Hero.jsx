@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import Typewriter from 'typewriter-effect';
-import ParticlesBackground from './ParticlesBackground';
 import { FaGithub, FaLinkedin, FaArrowRight, FaCode, FaEnvelope, FaCheckCircle } from 'react-icons/fa';
+
+// Particles heavy hai (~118KB) — baad me load hota hai taaki hero turant dikhe
+const ParticlesBackground = lazy(() => import('./ParticlesBackground'));
 
 const SOCIAL_LINKS = {
   github: "https://github.com/navneetyadav8070",
@@ -38,7 +40,7 @@ const Hero = () => {
 
   return (
     <section id="home" className="min-h-screen flex items-center justify-center gradient-bg relative overflow-hidden">
-      <ParticlesBackground />
+      <Suspense fallback={null}><ParticlesBackground /></Suspense>
       <div className="absolute inset-0 hex-bg opacity-[0.04]" />
       <div className="absolute top-20 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
