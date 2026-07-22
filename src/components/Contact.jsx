@@ -54,33 +54,33 @@ const Contact = () => {
                 <h3 className="text-lg font-bold text-white mb-6">Contact Info</h3>
                 
                 <div className="space-y-3">
-                  <a href={`mailto:${CONTACT_INFO.email}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group">
-                    <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                  <a href={`mailto:${CONTACT_INFO.email}`} aria-label={`Email ${CONTACT_INFO.email}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
                       <FaEnvelope size={16} />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs text-gray-500">Email</p>
-                      <p className="text-sm text-white font-medium">{CONTACT_INFO.email}</p>
+                      <p className="text-sm text-white font-medium break-all">{CONTACT_INFO.email}</p>
                     </div>
                   </a>
 
-                  <a href={`tel:${CONTACT_INFO.phone}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group">
-                    <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                  <a href={`tel:${CONTACT_INFO.phone}`} aria-label={`Call ${CONTACT_INFO.phone}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
                       <FaPhone size={16} />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs text-gray-500">Phone</p>
-                      <p className="text-sm text-white font-medium">{CONTACT_INFO.phone}</p>
+                      <p className="text-sm text-white font-medium break-all">{CONTACT_INFO.phone}</p>
                     </div>
                   </a>
 
-                  <div className="flex items-center gap-4 p-3 rounded-xl">
-                    <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                  <div className="flex items-center gap-4 p-3 rounded-xl min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
                       <FaMapMarkerAlt size={16} />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs text-gray-500">Location</p>
-                      <p className="text-sm text-white font-medium">{CONTACT_INFO.location}</p>
+                      <p className="text-sm text-white font-medium break-words">{CONTACT_INFO.location}</p>
                     </div>
                   </div>
                 </div>
@@ -89,13 +89,13 @@ const Contact = () => {
                 <div className="mt-6 pt-6 border-t border-white/5">
                   <p className="text-xs text-gray-500 mb-3">Find me on</p>
                   <div className="flex gap-2">
-                    <a href={CONTACT_INFO.github} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl glass border border-white/5 flex items-center justify-center text-gray-400 hover:text-accent transition-all">
+                    <a href={CONTACT_INFO.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub profile" className="w-10 h-10 rounded-xl glass border border-white/5 flex items-center justify-center text-gray-400 hover:text-accent transition-all">
                       <FaGithub size={16} />
                     </a>
-                    <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl glass border border-white/5 flex items-center justify-center text-gray-400 hover:text-[#0A66C2] transition-all">
+                    <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile" className="w-10 h-10 rounded-xl glass border border-white/5 flex items-center justify-center text-gray-400 hover:text-[#0A66C2] transition-all">
                       <FaLinkedin size={16} />
                     </a>
-                    <a href={`mailto:${CONTACT_INFO.email}`} className="w-10 h-10 rounded-xl glass border border-white/5 flex items-center justify-center text-gray-400 hover:text-accent transition-all">
+                    <a href={`mailto:${CONTACT_INFO.email}`} aria-label="Send email" className="w-10 h-10 rounded-xl glass border border-white/5 flex items-center justify-center text-gray-400 hover:text-accent transition-all">
                       <FaEnvelope size={16} />
                     </a>
                   </div>

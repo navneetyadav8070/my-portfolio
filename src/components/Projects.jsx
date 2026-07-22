@@ -85,6 +85,7 @@ const ProjectCard = ({ project, index }) => {
               href={project.liveDemo}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`Live demo of ${project.title}`}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-dark font-semibold rounded-full hover:bg-accent-hover transition-all duration-300 text-sm"
             >
               <FaExternalLinkAlt className="text-xs" />
@@ -94,6 +95,7 @@ const ProjectCard = ({ project, index }) => {
               href={project.github}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`Source code of ${project.title}`}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 glass text-white font-semibold rounded-full border border-accent/20 hover:border-accent transition-all duration-300 text-sm"
             >
               <FaGithub />
@@ -137,9 +139,10 @@ const Projects = () => {
           {/* GitHub CTA */}
           <div className="text-center mt-12">
             <a
-              href="https://github.com/navneetyadav"
+              href="https://github.com/navneetyadav8070"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="View more projects on GitHub"
               className="inline-flex items-center gap-2 px-8 py-4 glass text-white font-semibold rounded-full border border-accent/30 hover:bg-accent/10 transition-all duration-300"
             >
               <FaGithub className="text-xl" />
