@@ -1,3 +1,11 @@
 User-agent: *
 Allow: /
+
+# Private / app routes — search engines ise index na karein
+Disallow: /login
+Disallow: /register
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /checkout
+
 Sitemap: https://my-portfolio-nine-eosin-35.vercel.app/sitemap.xml

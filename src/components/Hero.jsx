@@ -66,6 +66,8 @@ const Hero = () => {
           </p>
           <h1 className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <span className="gradient-text glow-text">{HERO_CONTENT.name}</span>
+            {/* Visually hidden — SEO ke liye h1 ko keyword-rich banata hai (design same rehta hai) */}
+            <span className="sr-only">{' — Full Stack Developer & Digital Marketer, building websites, web apps and AI solutions'}</span>
           </h1>
           <div className={`text-xl sm:text-2xl md:text-3xl font-bold min-h-[50px] transition-all duration-700 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <Typewriter options={{ strings: ["Websites & Web Apps", "AI-Powered Solutions", "E-Commerce Platforms", "Custom Dashboards", "API Development"], autoStart: true, loop: true, deleteSpeed: 40, delay: 60, wrapperClassName: "text-accent font-bold", cursorClassName: "text-accent" }} />
