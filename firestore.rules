@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Helpers ----------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin'];
+    }
+
+    // ---------- USERS ----------
+    match /users/{userId} {
+      // Apna doc padho; admin sabka padhe
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+
+      // Sirf apna doc bana sakta hai, aur khud ko admin nahi bana sakta
+      allow create: if isSignedIn() && request.auth.uid == userId
+        && (!('role' in request.resource.data) || request.resource.data.role == 'user');
+
+      // Apna doc update: role/status khud change nahi kar sakta (privilege escalation se bachav)
+      allow update: if isSignedIn() && request.auth.uid == userId
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.status == resource.data.status;
+
+      // Admin kisi ko bhi update/delete kar sakta hai
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- PROJECTS ----------
+    match /projects/{projectId} {
+      // Client apne projects padhe; admin sab padhe
+      allow read: if isSignedIn()
+        && (resource.data.clientEmail == request.auth.token.email || isAdmin());
+
+      // Client payment ke baad apne naam se project bana sakta hai
+      allow create: if isSignedIn()
+        && request.resource.data.clientEmail == request.auth.token.email;
+
+      // Progress / status / note sirf ADMIN update kare
+      allow update, delete: if isAdmin();
+    }
+
+    // Baaki sab default se DENY (koi aur access nahi)
+  }
+}

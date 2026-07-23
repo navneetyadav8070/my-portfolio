@@ -24,7 +24,6 @@ const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Checkout = lazy(() => import('./components/Checkout'));
-const CreateAdmin = lazy(() => import('./pages/admin/CreateAdmin'));
 const ManageProjects = lazy(() => import('./pages/admin/ManageProjects'));
 
 const PageLoader = () => (
@@ -152,7 +151,6 @@ function App() {
             }
           />
           <Route path="/checkout" element={user ? <Checkout /> : <Navigate to="/login" />} />
-          <Route path="/create-admin" element={<CreateAdmin />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
