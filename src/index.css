@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
+/* Fonts ab index.html me non-blocking load hoti hain (yahan @import render-blocking tha) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -196,6 +195,11 @@ section[id] { scroll-margin-top: 100px; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  /* Motion off ho to sections turant dikhein — JS observer ka intezaar na karein */
+  .fade-in-section {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 

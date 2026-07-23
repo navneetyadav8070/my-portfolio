@@ -14,7 +14,6 @@ import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import AIAssistant from './components/AIAssistant';
 import LoadingScreen from './components/LoadingScreen';
 
 // Route pages lazy-load hoti hain — homepage ke initial bundle se bahar,
@@ -25,6 +24,9 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Checkout = lazy(() => import('./components/Checkout'));
 const ManageProjects = lazy(() => import('./pages/admin/ManageProjects'));
+// AIAssistant (floating chat) firebase import karta hai — ise defer karte hain
+// taaki homepage ka initial JS chhota rahe aur page fast khule.
+const AIAssistant = lazy(() => import('./components/AIAssistant'));
 
 const PageLoader = () => (
   <div className="min-h-screen bg-dark flex items-center justify-center">
@@ -81,14 +83,33 @@ const AdminRoute = ({ children }) => {
 
 const HomePage = ({ user }) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const observer = new IntersectionObserver(
-        (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('is-visible'); }),
-        { threshold: 0.1 }
-      );
-      document.querySelectorAll('.fade-in-section').forEach(s => observer.observe(s));
-    }, 500);
-    return () => clearTimeout(timer);
+    const sections = document.querySelectorAll('.fade-in-section');
+
+    // IntersectionObserver support na ho to sab turant dikha do
+    if (!('IntersectionObserver' in window)) {
+      sections.forEach((s) => s.classList.add('is-visible'));
+      return;
+    }
+
+    // Pehle 500ms ka koi delay nahi — observer turant chalu hota hai.
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            obs.unobserve(entry.target); // reveal ke baad observe band (halka)
+          }
+        });
+      },
+      {
+        threshold: 0, // section ka thoda sa hissa dikhte hi reveal (pehle 10% chahiye tha)
+        // 200px pehle hi reveal — mobile par scroll karte waqt blank/late-load fix
+        rootMargin: '0px 0px 200px 0px',
+      }
+    );
+
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -106,7 +127,11 @@ const HomePage = ({ user }) => {
       </main>
       <Footer />
       <ScrollToTop />
-      <AIAssistant />
+      {/* Apna Suspense (fallback null) — warna lazy AIAssistant poore page ko
+          spinner me daal deta. Chat button baad me chupchaap load hota hai. */}
+      <Suspense fallback={null}>
+        <AIAssistant />
+      </Suspense>
     </>
   );
 };

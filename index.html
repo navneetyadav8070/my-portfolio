@@ -33,6 +33,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://firebase.googleapis.com" />
+
+  <!-- Fonts: sirf Inter (Space Grotesk hata diya — use nahi ho raha tha).
+       Non-blocking load taaki pehla paint fast ho; display=swap se text turant dikhta hai. -->
+  <link
+    rel="preload"
+    as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" />
+  </noscript>
   
   <!-- Structured Data -->
   <script type="application/ld+json">
