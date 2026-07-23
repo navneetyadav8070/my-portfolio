@@ -9,7 +9,6 @@ import Services from './components/Services';
 import About from './components/About';
 import Skills from './components/Skills';
 import Projects from './components/Projects';
-import Process from './components/Process';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
@@ -121,7 +120,6 @@ const HomePage = ({ user }) => {
         <About />
         <Skills />
         <Projects />
-        <Process />
         <Testimonials />
         <Contact />
       </main>
