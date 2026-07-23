@@ -104,13 +104,6 @@ const Hero = () => {
               <FaEnvelope className="text-lg text-gray-400 group-hover:text-accent transition-colors" /><span className="text-sm text-gray-400 group-hover:text-white hidden sm:inline">Email</span>
             </a>
           </div>
-
-          <div className={`flex justify-center pt-4 transition-all duration-700 delay-1200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full border border-accent/10">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-xs text-gray-400">Available for new projects — Let's build something great!</span>
-            </div>
-          </div>
         </div>
       </div>
 
