@@ -110,6 +110,52 @@ section[id] { scroll-margin-top: 100px; }
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%2300ff88' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
+/* ---------- High-tech hero background ---------- */
+
+/* Animated grid — slowly pans; radial mask center me bright, edges par fade
+   (spreadsheet jaisa flat na dikhe, depth aaye). */
+.tech-grid {
+  background-image:
+    linear-gradient(rgba(0, 255, 136, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.09) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 42%, #000 5%, transparent 80%);
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 42%, #000 5%, transparent 80%);
+  animation: grid-pan 24s linear infinite;
+  will-change: background-position;
+}
+@keyframes grid-pan {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 46px 46px, 46px 46px; }
+}
+
+/* Aurora orbs — soft glowing light jo dheere drift karti hai. */
+@keyframes aurora-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(24px, -28px, 0) scale(1.15); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+.aurora {
+  animation: aurora-drift 16s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Scanline — patli si beam jo neeche ki taraf glide karti hai (hologram feel). */
+@keyframes scan-sweep {
+  0%   { transform: translateY(-12vh); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(102vh); opacity: 0; }
+}
+.scanline {
+  background: linear-gradient(to right,
+    transparent, rgba(0, 255, 136, 0.05), rgba(0, 255, 136, 0.45),
+    rgba(0, 255, 136, 0.05), transparent);
+  box-shadow: 0 0 18px 1px rgba(0, 255, 136, 0.35);
+  animation: scan-sweep 9s linear infinite;
+  will-change: transform;
+}
+
 /* Animations */
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 @keyframes spin-reverse { to { transform: rotate(-360deg); } }
