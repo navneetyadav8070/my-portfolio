@@ -10,7 +10,7 @@ const PROJECTS = [
     description: "A ChatGPT-style assistant that answers from your PDFs with an exact page citation for every claim (RAG) — plus OCR for scanned files and chat history synced across devices.",
     tags: ["React", "RAG", "Groq · Llama 3.3", "Gemini", "Firebase"],
     liveDemo: "https://docchat-umber.vercel.app",
-    github: "https://github.com/navneetyadav8070",
+    github: "https://github.com/navneetyadav8070/docchat",
     color: "from-violet-500/20 to-indigo-500/20"
   },
   {
@@ -32,7 +32,7 @@ const PROJECTS = [
     description: "Turns any messy file of phone numbers — PDF, Excel, CSV, Word or text — into one phone-ready .vcf, with smart detection, de-duplication and one-scan QR import across 8 formats.",
     tags: ["Python", "FastAPI", "Tailwind", "Firebase", "Docker"],
     liveDemo: "https://vcardify.onrender.com",
-    github: "https://github.com/navneetyadav8070/bulk-contacts-save-tool",
+    github: "https://github.com/navneetyadav8070",
     color: "from-emerald-500/20 to-teal-500/20"
   }
 ];
