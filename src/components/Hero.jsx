@@ -114,13 +114,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <button onClick={() => scrollToSection('services')} className="flex flex-col items-center gap-2 bg-transparent border-none cursor-pointer group outline-none">
-          <span className="text-[10px] text-gray-600 uppercase tracking-[0.2em] group-hover:text-accent transition-colors">See What I Do</span>
-          <div className="w-5 h-8 border-2 border-accent/20 group-hover:border-accent/50 rounded-full flex justify-center transition-all"><div className="w-1.5 h-3 bg-accent/50 group-hover:bg-accent rounded-full mt-1.5 animate-bounce" /></div>
-        </button>
-      </div>
     </section>
   );
 };

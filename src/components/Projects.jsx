@@ -9,7 +9,7 @@ const PROJECTS = [
     icon: "📄",
     description: "A ChatGPT-style assistant that answers from your PDFs with an exact page citation for every claim (RAG) — plus OCR for scanned files and chat history synced across devices.",
     tags: ["React", "RAG", "Groq · Llama 3.3", "Gemini", "Firebase"],
-    liveDemo: "",
+    liveDemo: "https://docchat-umber.vercel.app",
     github: "https://github.com/navneetyadav8070",
     color: "from-violet-500/20 to-indigo-500/20"
   },
@@ -20,7 +20,7 @@ const PROJECTS = [
     icon: "🗜️",
     description: "A universal compression platform for images, PDF, video, audio, docs, code & archives — with an AI smart-compressor, a live preview matrix and a format converter. Strict TypeScript, self-hostable.",
     tags: ["React 19", "TypeScript", "Fastify", "FFmpeg", "Docker"],
-    liveDemo: "",
+    liveDemo: "https://files-compress-theta.vercel.app",
     github: "https://github.com/navneetyadav8070",
     color: "from-cyan-500/20 to-blue-500/20"
   },
