@@ -1,43 +1,46 @@
-import { FaGithub, FaExternalLinkAlt, FaStar } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import Tilt from 'react-parallax-tilt';
 
 const PROJECTS = [
   {
     id: 1,
-    title: "Custom E-Commerce Platform",
-    description: "Hand-coded online store with React front-end, FastAPI back-end, product database, cart & checkout system.",
-    longDescription: "A fully functional e-commerce solution built from scratch with modern technologies.",
-    tags: ["React", "FastAPI", "Database", "Stripe"],
-    liveDemo: "#",
-    github: "#",
-    stars: 15,
-    color: "from-blue-500/20 to-purple-500/20"
+    title: "DocChat — Chat with your PDFs",
+    category: "AI · RAG",
+    icon: "📄",
+    description: "A ChatGPT-style assistant that answers from your PDFs with an exact page citation for every claim (RAG) — plus OCR for scanned files and chat history synced across devices.",
+    tags: ["React", "RAG", "Groq · Llama 3.3", "Gemini", "Firebase"],
+    liveDemo: "",
+    github: "https://github.com/navneetyadav8070",
+    color: "from-violet-500/20 to-indigo-500/20"
   },
   {
     id: 2,
-    title: "Full App with Realtime Database",
-    description: "End-to-end app connected to Firebase Realtime Database with REST APIs for live data sync.",
-    longDescription: "Real-time application with instant data synchronization across multiple clients.",
-    tags: ["React", "Firebase", "REST API", "WebSocket"],
-    liveDemo: "#",
-    github: "#",
-    stars: 12,
-    color: "from-green-500/20 to-teal-500/20"
+    title: "Compresso — Compress anything",
+    category: "Full-Stack",
+    icon: "🗜️",
+    description: "A universal compression platform for images, PDF, video, audio, docs, code & archives — with an AI smart-compressor, a live preview matrix and a format converter. Strict TypeScript, self-hostable.",
+    tags: ["React 19", "TypeScript", "Fastify", "FFmpeg", "Docker"],
+    liveDemo: "",
+    github: "https://github.com/navneetyadav8070",
+    color: "from-cyan-500/20 to-blue-500/20"
   },
   {
     id: 3,
-    title: "Telegram Automation Bot",
-    description: "Python bot using Telethon/Pyrogram & MTProto API with webhooks for automated messaging.",
-    longDescription: "Advanced automation bot handling thousands of messages with intelligent responses.",
-    tags: ["Python", "Telethon", "Webhooks", "MTProto"],
-    liveDemo: "#",
-    github: "#",
-    stars: 20,
-    color: "from-orange-500/20 to-red-500/20"
+    title: "VCardify — Bulk Contact Saver",
+    category: "Python · API",
+    icon: "📇",
+    description: "Turns any messy file of phone numbers — PDF, Excel, CSV, Word or text — into one phone-ready .vcf, with smart detection, de-duplication and one-scan QR import across 8 formats.",
+    tags: ["Python", "FastAPI", "Tailwind", "Firebase", "Docker"],
+    liveDemo: "https://vcardify.onrender.com",
+    github: "https://github.com/navneetyadav8070/bulk-contacts-save-tool",
+    color: "from-emerald-500/20 to-teal-500/20"
   }
 ];
 
-const ProjectCard = ({ project, index }) => {
+const ProjectCard = ({ project }) => {
+  const hasLive = project.liveDemo && project.liveDemo !== "#";
+  const hasCode = project.github && project.github !== "#";
+
   return (
     <Tilt
       tiltMaxAngleX={5}
@@ -51,14 +54,11 @@ const ProjectCard = ({ project, index }) => {
         {/* Project Header with Gradient */}
         <div className={`h-48 bg-gradient-to-br ${project.color} relative overflow-hidden`}>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-6xl opacity-20">
-              {project.tags[0] === "React" ? "⚛️" : project.tags[0] === "Python" ? "🐍" : "🔥"}
-            </div>
+            <div className="text-6xl opacity-25">{project.icon}</div>
           </div>
-          {/* Stars Badge */}
-          <div className="absolute top-4 right-4 glass rounded-full px-3 py-1 flex items-center gap-1 text-sm">
-            <FaStar className="text-yellow-400" />
-            <span className="text-white">{project.stars}</span>
+          {/* Category Badge */}
+          <div className="absolute top-4 right-4 glass rounded-full px-3 py-1 text-xs font-medium text-accent border border-accent/20">
+            {project.category}
           </div>
         </div>
 
@@ -79,28 +79,32 @@ const ProjectCard = ({ project, index }) => {
             ))}
           </div>
 
-          {/* Buttons */}
+          {/* Buttons — Live Demo shows only when a real URL exists */}
           <div className="flex gap-3">
-            <a
-              href={project.liveDemo}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Live demo of ${project.title}`}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-dark font-semibold rounded-full hover:bg-accent-hover transition-all duration-300 text-sm"
-            >
-              <FaExternalLinkAlt className="text-xs" />
-              Live Demo
-            </a>
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Source code of ${project.title}`}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 glass text-white font-semibold rounded-full border border-accent/20 hover:border-accent transition-all duration-300 text-sm"
-            >
-              <FaGithub />
-              Code
-            </a>
+            {hasLive && (
+              <a
+                href={project.liveDemo}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Live demo of ${project.title}`}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-dark font-semibold rounded-full hover:bg-accent-hover transition-all duration-300 text-sm"
+              >
+                <FaExternalLinkAlt className="text-xs" />
+                Live Demo
+              </a>
+            )}
+            {hasCode && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Source code of ${project.title}`}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 glass text-white font-semibold rounded-full border border-accent/20 hover:border-accent transition-all duration-300 text-sm"
+              >
+                <FaGithub />
+                Code
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -120,7 +124,7 @@ const Projects = () => {
               Featured Projects
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
-              Some of my recent works that showcase my skills
+              Real products I've designed, built and shipped — end to end.
             </p>
             <div className="flex items-center justify-center gap-4 mt-4">
               <div className="w-12 h-1 bg-accent rounded-full" />
@@ -131,8 +135,8 @@ const Projects = () => {
 
           {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {PROJECTS.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} />
+            {PROJECTS.map((project) => (
+              <ProjectCard key={project.id} project={project} />
             ))}
           </div>
 
