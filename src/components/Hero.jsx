@@ -40,10 +40,18 @@ const Hero = () => {
 
   return (
     <section id="home" className="min-h-screen flex items-center justify-center gradient-bg relative overflow-hidden">
+      {/* Animated tech grid */}
+      <div className="absolute inset-0 tech-grid pointer-events-none" />
+      {/* Interactive particle network (hover se lines judti hain) */}
       <Suspense fallback={null}><ParticlesBackground /></Suspense>
-      <div className="absolute inset-0 hex-bg opacity-[0.04]" />
-      <div className="absolute top-20 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      {/* Aurora glow orbs — green/emerald/cyan family = cohesive high-tech look */}
+      <div className="aurora absolute -top-10 left-1/4 w-80 h-80 bg-accent/15 rounded-full blur-[110px] pointer-events-none" />
+      <div className="aurora absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" style={{ animationDelay: '5s' }} />
+      <div className="aurora absolute top-1/3 right-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" style={{ animationDelay: '9s' }} />
+      {/* Scanline sweep (desktop only) */}
+      <div className="scanline hidden md:block absolute inset-x-0 top-0 h-0.5 pointer-events-none" />
+      {/* Depth vignette */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.55))]" />
 
       <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-20">
         {/* Profile Image - Fixed */}
