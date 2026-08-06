@@ -7,9 +7,6 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
-  sendSignInLinkToEmail,
-  signInWithEmailLink,
-  isSignInWithEmailLink,
   sendPasswordResetEmail,
   sendEmailVerification,
   updateProfile,
@@ -20,10 +17,9 @@ import {
   reauthenticateWithPopup
 } from 'firebase/auth';
 import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  getDocs, 
+  getFirestore,
+  collection,
+  getDocs,
   query, 
   where, 
   doc, 

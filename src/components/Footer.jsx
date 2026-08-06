@@ -7,7 +7,7 @@ const Footer = () => {
   // EDIT: Update links
   const socialLinks = [
     { icon: FaGithub, href: "https://github.com/navneetyadav8070", label: "GitHub" },
-    { icon: FaLinkedin, href: "https://linkedin.com/in/navneetyadav", label: "LinkedIn" },
+    { icon: FaLinkedin, href: "https://www.linkedin.com/in/navneet-yadav-82b601425", label: "LinkedIn" },
     { icon: FaEnvelope, href: "mailto:Navneetyadav8070@gmail.com", label: "Email" }
   ];
 

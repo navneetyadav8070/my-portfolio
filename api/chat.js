@@ -91,7 +91,8 @@ export default async function handler(req, res) {
         generationConfig.thinkingConfig = { thinkingBudget: -1 };
       }
 
-      const body = JSON.stringify({
+      // NOTE: `payload` naam isliye — outer `body` (req.body) ko shadow na kare.
+      const payload = JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents,
         generationConfig,
@@ -102,7 +103,7 @@ export default async function handler(req, res) {
         upstream = await fetch(url, {
           method: 'POST',
           headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
-          body,
+          body: payload,
         });
       } catch (e) {
         lastStatus = 0;

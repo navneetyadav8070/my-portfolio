@@ -6,7 +6,7 @@ const CONTACT_INFO = {
   email: "Navneetyadav8070@gmail.com",
   phone: "+91 8826999747",
   github: "https://github.com/navneetyadav8070",
-  linkedin: "https://linkedin.com/in/navneetyadav",
+  linkedin: "https://www.linkedin.com/in/navneet-yadav-82b601425",
   location: "Greater Noida, India",
   title: "Let's Work Together",
   subtitle: "Have a project in mind? I'd love to hear about it."

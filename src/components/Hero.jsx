@@ -7,7 +7,7 @@ const ParticlesBackground = lazy(() => import('./ParticlesBackground'));
 
 const SOCIAL_LINKS = {
   github: "https://github.com/navneetyadav8070",
-  linkedin: "https://linkedin.com/in/navneetyadav",
+  linkedin: "https://www.linkedin.com/in/navneet-yadav-82b601425",
   email: "mailto:Navneetyadav8070@gmail.com"
 };
 
@@ -34,7 +34,7 @@ const Hero = () => {
       const navbarHeight = window.innerWidth < 640 ? 70 : 100;
       const offsetPosition = element.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
       try { window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); } 
-      catch (error) { window.scrollTo(0, offsetPosition); }
+      catch { window.scrollTo(0, offsetPosition); }
     }
   };
 

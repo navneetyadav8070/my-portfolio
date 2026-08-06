@@ -28,7 +28,7 @@ const About = () => {
       const navbarHeight = 80;
       const offsetPosition = element.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
       try { window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); } 
-      catch (error) { window.scrollTo(0, offsetPosition); }
+      catch { window.scrollTo(0, offsetPosition); }
     }
   };
 

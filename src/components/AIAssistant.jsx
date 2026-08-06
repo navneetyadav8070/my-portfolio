@@ -150,7 +150,8 @@ const AIAssistant = () => {
     return `Logged-in client: ${user.displayName || user.email} (${user.email}).\nTheir projects:\n${lines.join('\n')}`;
   };
 
-  // Typed sawaal → real AI (Claude API). API na ho / fail ho to built-in jawab (hybrid).
+  // Typed sawaal → real AI (/api/chat → Google Gemini).
+  // API na ho / fail ho to built-in rule-based jawab chalta hai (hybrid).
   const handleSend = async (e) => {
     e.preventDefault();
     const text = input.trim();

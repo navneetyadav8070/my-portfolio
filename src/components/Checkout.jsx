@@ -4,8 +4,10 @@ import { auth, db } from '../firebase/config';  // ✅ FIXED: changed from '../f
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { FaLock, FaCreditCard, FaCheckCircle, FaArrowLeft, FaShieldAlt, FaEnvelope, FaPhone } from 'react-icons/fa';
 
-// Your Razorpay Key ID (Test Mode)
-const RAZORPAY_KEY_ID = "rzp_test_TFXHxHcLMW7T9l";
+// Razorpay Key ID — env se aata hai taaki live par live key aur local par test key chale.
+// (Key ID public hota hai; secret kabhi frontend me nahi aata.)
+// Fallback test key isliye hai taaki env set na hone par bhi checkout khule.
+const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_TFXHxHcLMW7T9l';
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
