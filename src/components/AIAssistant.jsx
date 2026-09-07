@@ -81,6 +81,12 @@ const AIAssistant = () => {
     if (open) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, open]);
 
+  // Panel khulne/band hone ki khabar bahar bhejo — FloatingContact (WhatsApp/Call)
+  // isse sunkar khud ko chhupa leta hai, warna wo glass panel ke peeche jhaankta hai.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('ai-chat-toggle', { detail: { open } }));
+  }, [open]);
+
   const pushBot = (text) => setMessages((m) => [...m, { from: 'bot', text }]);
   const pushUser = (text) => setMessages((m) => [...m, { from: 'user', text }]);
 

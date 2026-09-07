@@ -12,7 +12,6 @@ import Projects from './components/Projects';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import ScrollToTop from './components/ScrollToTop';
 import FloatingContact from './components/FloatingContact';
 import LoadingScreen from './components/LoadingScreen';
 
@@ -125,7 +124,6 @@ const HomePage = ({ user }) => {
         <Contact />
       </main>
       <Footer />
-      <ScrollToTop />
       <FloatingContact />
       {/* Apna Suspense (fallback null) — warna lazy AIAssistant poore page ko
           spinner me daal deta. Chat button baad me chupchaap load hota hai. */}
