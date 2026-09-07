@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { FaWhatsapp, FaPhoneAlt } from 'react-icons/fa';
 
-// Direct contact ke liye floating buttons — WhatsApp aur Call, ek row me.
-// Right side me, AIAssistant chat button (bottom-5 right-5, z-50) ke thoda upar.
+// Direct contact ke liye floating buttons — WhatsApp aur Call, ek column me.
+// Right side me, AIAssistant chat button (bottom-5 right-5, z-50) ke upar —
+// teeno milkar right edge par ek seedhi line banate hain.
 const PHONE = '+918826999747';
 const WHATSAPP_NUMBER = '918826999747'; // wa.me ko number bina '+' aur space ke chahiye
 const WHATSAPP_MESSAGE = "Hi Navneet! I saw your portfolio and I'd like to discuss a project.";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
-// Tooltip button ke upar aata hai — right side par side-tooltip screen se bahar chala jaata.
+// Tooltip button ke baayein aata hai. Column me upar-tooltip rakhte to wo
+// upar wale button ke peeche chala jaata; baayein khaali page hai.
 const TOOLTIP_CLASS =
-  'hidden sm:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap px-3 py-1.5 rounded-lg bg-dark-card text-white text-xs border border-white/10 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none';
+  'hidden sm:block absolute right-full top-1/2 -translate-y-1/2 mr-3 whitespace-nowrap px-3 py-1.5 rounded-lg bg-dark-card text-white text-xs border border-white/10 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none';
 
 const FloatingContact = () => {
   const [mounted, setMounted] = useState(false);
@@ -35,7 +37,7 @@ const FloatingContact = () => {
 
   return (
     <div
-      className={`fixed bottom-24 right-5 sm:right-6 z-40 flex flex-row items-center gap-3 transition-all duration-500 ${
+      className={`fixed bottom-24 right-5 sm:right-6 z-40 flex flex-col items-center gap-3 transition-all duration-500 ${
         visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-90 pointer-events-none'
       }`}
     >
@@ -46,11 +48,11 @@ const FloatingContact = () => {
         rel="noopener noreferrer"
         aria-label="Chat on WhatsApp"
         title="Chat on WhatsApp"
-        className="group relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-xl shadow-[#25D366]/30 hover:scale-105 active:scale-95 transition-transform outline-none"
+        className="group relative w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-xl shadow-[#25D366]/30 hover:scale-105 active:scale-95 transition-transform outline-none"
       >
         {/* Pulse ring — sirf dikhne ke liye, isliye click block na kare */}
         <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-40 animate-ping pointer-events-none" />
-        <FaWhatsapp className="relative text-2xl sm:text-[26px]" />
+        <FaWhatsapp className="relative text-[26px]" />
         {/* Tooltip sirf bade screens par (mobile par hover hota hi nahi) */}
         <span className={TOOLTIP_CLASS}>Chat on WhatsApp</span>
       </a>
@@ -60,9 +62,9 @@ const FloatingContact = () => {
         href={`tel:${PHONE}`}
         aria-label={`Call ${PHONE}`}
         title={`Call ${PHONE}`}
-        className="group relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-accent to-green-400 text-dark flex items-center justify-center shadow-xl shadow-accent/30 hover:scale-105 active:scale-95 transition-transform outline-none"
+        className="group relative w-14 h-14 rounded-full bg-gradient-to-br from-accent to-green-400 text-dark flex items-center justify-center shadow-xl shadow-accent/30 hover:scale-105 active:scale-95 transition-transform outline-none"
       >
-        <FaPhoneAlt className="relative text-lg sm:text-xl" />
+        <FaPhoneAlt className="relative text-xl" />
         <span className={TOOLTIP_CLASS}>Call Now</span>
       </a>
     </div>
