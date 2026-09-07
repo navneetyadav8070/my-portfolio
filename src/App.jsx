@@ -13,6 +13,7 @@ import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import FloatingContact from './components/FloatingContact';
 import LoadingScreen from './components/LoadingScreen';
 
 // Route pages lazy-load hoti hain — homepage ke initial bundle se bahar,
@@ -125,6 +126,7 @@ const HomePage = ({ user }) => {
       </main>
       <Footer />
       <ScrollToTop />
+      <FloatingContact />
       {/* Apna Suspense (fallback null) — warna lazy AIAssistant poore page ko
           spinner me daal deta. Chat button baad me chupchaap load hota hai. */}
       <Suspense fallback={null}>
